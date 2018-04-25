@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd">
+
+  <context:property-placeholder location="classpath:*.properties"
+                                file-encoding="UTF-8" />
+
+    <bean id="properties"
+          class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+        <property name="location" value="classpath:path.properties"  />
+        <property name="fileEncoding" value="UTF-8"></property>
+    </bean>
+
+    <bean id="gribProperties"
+          class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+        <property name="location" value="classpath:config/readGrib.properties"/>
+        <property name="fileEncoding" value="UTF-8"></property>
+    </bean>
+
+
+
+       <!-- 开启spring注释 -->
+    <context:annotation-config/>
+    <context:component-scan base-package="wingsby"/>
+
+    <!-- 导入关联配置 -->
+    <!--<import resource="classpath:spring/spring-config-database-dbcp.xml"/>-->
+    <!--<import resource="classpath:spring/spring-config-redis.xml"/>-->
+
+</beans>
