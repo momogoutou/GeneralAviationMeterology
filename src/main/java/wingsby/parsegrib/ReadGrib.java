@@ -148,7 +148,7 @@ public class ReadGrib {
     直接输出的要素
     **************************************************************
 */
-            int hour = Integer.parseInt(fileName.substring(fileName.length() - 3));//读取非天气条件要素
+            int hour = Integer.parseInt(fileName.substring(fileName.length() - 3));//读取名称中含有变化数值的要素
             Variable element = getVariable(ncfile, elementName.geteName(), hour);
             if (element == null) {   //要素有的文件有，有的没
                 pack_false();

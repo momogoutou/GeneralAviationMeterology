@@ -77,7 +77,7 @@ public class Grib2dat implements TimeMangerJob {
                 long start = System.currentTimeMillis(); /////////////////////////////////////////////////////
                 for (ElementName elementName : ElementName.values()) {
                     System.out.println("正在解析：：：" + elementName.geteName());//////////////////////////////////////////////////
-                    if (elementName.getType() == "isobaric") {                   //多层
+                    if (elementName.getType().equals( "isobaric") ){                   //多层
                         for (String isobaricName : isobaric) {
                             System.out.println("正在解析：：：" + isobaricName);///////////////////////////////
                             CacheDataFrame cacheDataFrame = CacheDataFrame.getInstance();
@@ -90,9 +90,9 @@ public class Grib2dat implements TimeMangerJob {
                                 cacheDataFrame.pushData(gfsMem, date + VTI + "_" + isobaricName + "_" + elementName);
                             }
                         }
-                    } else {                     //单层
+                    } else if(elementName.getType().equals( "surface")){                     //单层
                         CacheDataFrame cacheDataFrame = CacheDataFrame.getInstance();
-                        if(elementName.equals(ElementName.HGTS)){
+                        if(elementName.equals(ElementName.TCDC)){
                             System.out.println();
                         }
                         GFSMem gfsMem = ReadGrib.getInstance().readGrib(fileName, elementName, "surface");

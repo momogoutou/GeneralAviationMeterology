@@ -23,6 +23,9 @@ public enum ElementName {
 
     RHS("Relative_humidity_height_above_ground", "2m相对湿度", "surface", "%"),   //4维[1][1][721][1440]
     GUST("Wind_speed_gust_surface", "阵风", "surface", "m/s"),
+    TCDC("Total_cloud_cover_entire_atmosphere_2_Hour_Average","总云量","surface","%"),
+    TCDCL("Total_cloud_cover_low_cloud_2_Hour_Average","低层云量","surface","%"),
+    PLCB("Pressure_low_cloud_bottom_2_Hour_Average","低云云底高度","surface","Pa"),
 //**************************************************************************************************************************
 
     //合成输出要素
