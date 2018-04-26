@@ -26,6 +26,8 @@ public class GFSDateTimeTools {
 
     public static String getGFSDateTime(DateTime inputDate,int minusHour){
         DateTime useDate=new DateTime(inputDate.getMillis());
+        //todo 固定时间
+        useDate=new DateTime(2018,4,25,14,0);
         DateTimeFormatter dateformat = DateTimeFormat.forPattern("yyyyMMddHH");
         //转换为世界时
         useDate = useDate.minusHours(8);

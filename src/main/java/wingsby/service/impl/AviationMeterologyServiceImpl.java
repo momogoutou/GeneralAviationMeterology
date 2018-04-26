@@ -7,6 +7,7 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.ResourceAccessException;
 import wingsby.common.CacheDataFrame;
 import wingsby.common.ConstantVar;
 import wingsby.common.LagrangeInterpolation;
@@ -18,6 +19,8 @@ import wingsby.parsegrib.Grib2dat;
 import wingsby.service.AviationMeterologyService;
 
 import java.util.*;
+
+import static oracle.net.aso.C05.e;
 
 /**
  * Created by wingsby on 2018/3/20.
@@ -35,11 +38,16 @@ public class AviationMeterologyServiceImpl implements AviationMeterologyService 
         JSONObject pointJson = new JSONObject();
         for (int i = 0; i < 5; i++) {
             DateTime curTime = useDate.plusHours(i);
-            JSONObject hourJson = hourForcast(lat, lon, useDate, heights);
-            if (hourJson != null) {
-                pointJson.put(String.valueOf(curTime.getHourOfDay()), hourJson);
+            try {
+                JSONObject hourJson = hourForcast(lat, lon, curTime, heights);
+                if (hourJson != null) {
+                    pointJson.put(String.valueOf(curTime.getHourOfDay()), hourJson);
+                }
+            }catch (Exception e){
+                e.printStackTrace();
             }
         }
+        if(pointJson.isEmpty())throw new ResourceAccessException("数据查询失败");
         return pointJson;
     }
 

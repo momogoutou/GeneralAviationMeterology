@@ -4,6 +4,8 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -12,15 +14,18 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import sun.security.x509.Extension;
 import wingsby.TimeMangerJob;
+import wingsby.common.CacheDataFrame;
 import wingsby.common.GFSTimeManger;
 import wingsby.common.JSONUtil;
 import wingsby.common.ResStatus;
+import wingsby.common.tools.GFSDateTimeTools;
 import wingsby.parsegrib.Grib2dat;
 import wingsby.service.AviationMeterologyService;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Calendar;
+import java.util.Set;
 
 /**
  * Created by wingsby on 2018/4/16.
@@ -52,6 +57,8 @@ public class AviationMeterologyController {
         heights.add("500-2");
         heights.add("200-1");
         DateTime time = new DateTime(Calendar.getInstance().getTimeInMillis());
+        // todo
+        time=new DateTime(2018,4,25,17,0);
         JSONObject dataJSON = new JSONObject();
         try {
             JSONObject pointJson = iService.getRecentPredictPoint(40f, 120f,
@@ -68,10 +75,12 @@ public class AviationMeterologyController {
             dataJSON.put("0", pointJson2);
             resJSON.put("code", ResStatus.SUCCESSFUL.getStatusCode());
             resJSON.put("data", dataJSON);
+            resJSON.put("runtime",getTimeStr(time));
         } catch (Exception e) {
             e.printStackTrace();
             resJSON.put("code", ResStatus.SEARCH_ERROR.getStatusCode());
         }
+//        resJSON.put("runtime",getTimeStr(time));
         return resJSON;
     }
 
@@ -93,7 +102,8 @@ public class AviationMeterologyController {
         JSONObject resJSON = new JSONObject();
         resJSON.put("code", ResStatus.SUCCESSFUL.getStatusCode());
         resJSON.put("data", dataJSON);
-        return null;
+        resJSON.put("runtime",getTimeStr(time));
+        return resJSON;
     }
 
 
@@ -105,13 +115,14 @@ public class AviationMeterologyController {
         DateTime dateTime = new DateTime(System.currentTimeMillis());
         try {
             JSONObject dataJSON = new JSONObject();
-//            Object[]array=new Object[1];
             for (Object obj : array) {
                 JSONObject requestJson = (JSONObject) obj;
                 int id = (int) requestJson.get("id");
                 float lat = Float.valueOf((String) requestJson.get("lat"));
                 float lon = Float.valueOf((String) requestJson.get("lng"));
                 JSONArray heights = (JSONArray) requestJson.get("heights");
+                // todo
+                dateTime=new DateTime(2018,4,25,17,0);
                 JSONObject pointJson = iService.getRecentPredictPoint(lat, lon, dateTime, heights);
                 dataJSON.put(String.valueOf(id), pointJson);
             }
@@ -119,6 +130,7 @@ public class AviationMeterologyController {
             resJSON.put("delay", (System.currentTimeMillis() - tt));
             resJSON.put("code", ResStatus.SUCCESSFUL.getStatusCode());
             resJSON.put("data", dataJSON);
+            resJSON.put("runtime",getTimeStr(dateTime));
 //            JSONUtil.writeJSONToResponse(response, resJSON);
             return resJSON;
         } catch (Exception e) {
@@ -127,6 +139,27 @@ public class AviationMeterologyController {
 //            JSONUtil.writeJSONToResponse(response, resJSON);
             return resJSON;
         }
+
+    }
+
+    private String getTimeStr(DateTime useDate){
+        String timeVTI = GFSDateTimeTools.getGFSDateTimeVTI(useDate, 0);
+        Set<String> keys = CacheDataFrame.getInstance().getKeys();
+        boolean timeExists = false;
+        for (String key : keys) {
+            if (key.contains(timeVTI)) {
+                timeExists = true;
+                break;
+            }
+        }
+        if (!timeExists)             //往前推12个小时
+            timeVTI = GFSDateTimeTools.getGFSDateTimeVTI(useDate, 12);
+        DateTimeFormatter dateformat = DateTimeFormat.forPattern("yyyyMMddHH");
+        if(timeVTI!=null&&timeVTI.length()>10){
+            DateTime time=dateformat.parseDateTime(timeVTI.substring(0,10));
+            time=time.plusHours(8);
+            return time.toString("yyyyMMddHH");
+        }else return null;
     }
 
 }
