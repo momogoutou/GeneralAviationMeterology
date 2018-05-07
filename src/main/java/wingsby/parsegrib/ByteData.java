@@ -77,7 +77,7 @@ public class ByteData {
         short[][] element_data=new short[lat_num][lon_num];
         for (int i = 0; i < lat_num; i++) {
             for (int j = 0; j < lon_num; j++) {
-                element_data[i][j] = ByteData.float2short(data[0][0][i][j], offset, scale);
+                element_data[lat_num-1-i][j] = ByteData.float2short(data[0][0][i][j], offset, scale);
             }
         }
 
@@ -90,7 +90,7 @@ public class ByteData {
         short[][] element_data=new short[lat_num][lon_num];
         for (int i = 0; i < lat_num; i++) {
             for (int j = 0; j < lon_num; j++) {
-                element_data[i][j] = ByteData.float2short(data[0][i][j], offset, scale);
+                element_data[lat_num-1-i][j] = ByteData.float2short(data[0][i][j], offset, scale);
             }
         }
 
