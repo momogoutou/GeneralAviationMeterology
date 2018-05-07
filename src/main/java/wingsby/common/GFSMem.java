@@ -1,5 +1,6 @@
 package wingsby.common;
 
+import wingsby.common.tools.ConstantVar;
 import wingsby.parsegrib.ByteData;
 
 /**

@@ -1,4 +1,4 @@
-package wingsby.common;
+package wingsby.common.tools;
 
 /**
  * Created by wingsby on 2018/4/10.

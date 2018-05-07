@@ -1,5 +1,7 @@
 package wingsby.common;
 
+import wingsby.common.tools.ConstantVar;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;

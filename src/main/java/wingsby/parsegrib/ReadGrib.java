@@ -4,7 +4,7 @@ import ucar.ma2.InvalidRangeException;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
 import ucar.nc2.dataset.NetcdfDataset;
-import wingsby.common.ConstantVar;
+import wingsby.common.tools.ConstantVar;
 import wingsby.common.GFSMem;
 import wingsby.common.tools.MeteologicalTools;
 

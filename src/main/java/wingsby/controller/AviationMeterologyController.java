@@ -14,10 +14,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import sun.security.x509.Extension;
 import wingsby.TimeMangerJob;
-import wingsby.common.CacheDataFrame;
-import wingsby.common.GFSTimeManger;
-import wingsby.common.JSONUtil;
-import wingsby.common.ResStatus;
+import wingsby.common.*;
 import wingsby.common.tools.GFSDateTimeTools;
 import wingsby.parsegrib.Grib2dat;
 import wingsby.service.AviationMeterologyService;
@@ -54,14 +51,20 @@ public class AviationMeterologyController {
     @ResponseBody
     public JSONObject forcastPointTest(HttpServletRequest request, HttpServletResponse response) {
         JSONArray heights = new JSONArray();
+        GFSMem mem=(GFSMem) CacheDataFrame.getInstance().
+                pullData("2018050612013_9999_TMPS");
+        float a=mem.getByLonLat(116.8f,39.6f);
+        System.out.println(a);
+
+
+
         heights.add("500-2");
         heights.add("200-1");
         DateTime time = new DateTime(Calendar.getInstance().getTimeInMillis());
-        // todo
-        time=new DateTime(2018,4,25,17,0);
+//        time=new DateTime(2018,4,25,17,0);
         JSONObject dataJSON = new JSONObject();
         try {
-            JSONObject pointJson = iService.getRecentPredictPoint(40f, 120f,
+            JSONObject pointJson = iService.getRecentPredictPoint(39.6f, 116f,
                     time, heights);
             dataJSON.put("1", pointJson);
             DateTime time2 = time.minusDays(1);
@@ -118,11 +121,10 @@ public class AviationMeterologyController {
             for (Object obj : array) {
                 JSONObject requestJson = (JSONObject) obj;
                 int id = (int) requestJson.get("id");
-                float lat = Float.valueOf((String) requestJson.get("lat"));
-                float lon = Float.valueOf((String) requestJson.get("lng"));
+                float lat = Float.valueOf(requestJson.get("lat").toString());
+                float lon = Float.valueOf(requestJson.get("lng").toString());
                 JSONArray heights = (JSONArray) requestJson.get("heights");
-                // todo
-                dateTime=new DateTime(2018,4,25,17,0);
+//                dateTime=new DateTime(2018,4,25,17,0);
                 JSONObject pointJson = iService.getRecentPredictPoint(lat, lon, dateTime, heights);
                 dataJSON.put(String.valueOf(id), pointJson);
             }
