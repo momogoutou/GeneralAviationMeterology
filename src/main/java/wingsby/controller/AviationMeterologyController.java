@@ -12,8 +12,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
-import sun.security.x509.Extension;
-import wingsby.TimeMangerJob;
 import wingsby.common.*;
 import wingsby.common.tools.GFSDateTimeTools;
 import wingsby.parsegrib.Grib2dat;
@@ -51,10 +49,10 @@ public class AviationMeterologyController {
     @ResponseBody
     public JSONObject forcastPointTest(HttpServletRequest request, HttpServletResponse response) {
         JSONArray heights = new JSONArray();
-        GFSMem mem=(GFSMem) CacheDataFrame.getInstance().
-                pullData("2018050612013_9999_TMPS");
-        float a=mem.getByLonLat(116.8f,39.6f);
-        System.out.println(a);
+//        GFSMem mem=(GFSMem) CacheDataFrame.getInstance().
+//                pullData("2018050612013_9999_TMPS");
+//        float a=mem.getByLonLat(116.8f,39.6f);
+//        System.out.println(a);
 
 
 

@@ -2,7 +2,7 @@ package wingsby.parsegrib;
 
 
 import org.joda.time.DateTime;
-import wingsby.TimeMangerJob;
+import wingsby.common.TimeMangerJob;
 import wingsby.common.CacheDataFrame;
 import wingsby.common.GFSMem;
 import wingsby.common.tools.GFSDateTimeTools;

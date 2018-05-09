@@ -86,6 +86,8 @@ public class AviationMeterologyServiceImpl implements AviationMeterologyService 
                 for (String lev : Grib2dat.getInstance().isobaric) {
                     float val = dao.getGFSPointData(timeVTI, lev, eles.name(), lat, lon);
                     float hh = dao.getGFSPointData(timeVTI, lev, ElementName.HGT.name(), lat, lon);
+                    if(Math.abs(hh-ConstantVar.NullValF)<1e-5)
+                        throw new Exception("位势高度无数据，无法插值");
                     hhs.add(hh);
                     vals.add(val);
                 }
@@ -100,12 +102,13 @@ public class AviationMeterologyServiceImpl implements AviationMeterologyService 
                 hhs.add(0f);
                 List<Float[]> formatData = LagrangeInterpolation.formatData(vals, hhs);
                 float gh = dao.getGFSPointData(timeVTI, "9999", ElementName.HGT.name(), lat, lon);
+                if(Math.abs(gh-ConstantVar.NullValF)<1e-5)
+                    throw new Exception("位势高度无数据，无法插值");
                 if (formatData != null && formatData.size() > 0) {
                     List<Float> idata = calculateInterpolationData(heights, formatData, gh, lat, lon);
                     map.put(eles.name(), idata);
                 }
             } catch (Exception e) {
-//                e.printStackTrace();
             }
         }
         //地面
