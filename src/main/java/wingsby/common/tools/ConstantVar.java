@@ -5,5 +5,6 @@ package wingsby.common.tools;
  */
 public class ConstantVar {
     public static  final  float NullValF=-9999f;
+    public static  final  float NANF=-9999f;
     public static short NullValSI=-9999;
 }

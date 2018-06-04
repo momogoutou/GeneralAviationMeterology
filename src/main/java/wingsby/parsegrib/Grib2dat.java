@@ -79,7 +79,7 @@ public class Grib2dat implements TimeMangerJob {
                     System.out.println("正在解析：：：" + elementName.geteName());//////////////////////////////////////////////////
                     if (elementName.getType().equals( "isobaric") ){                   //多层
                         for (String isobaricName : isobaric) {
-                            System.out.println("正在解析：：：" + isobaricName);///////////////////////////////
+//                            System.out.println("正在解析：：：" + isobaricName);///////////////////////////////
                             CacheDataFrame cacheDataFrame = CacheDataFrame.getInstance();
                             GFSMem gfsMem = ReadGrib.getInstance().readGrib(fileName, elementName, isobaricName);
                             if (gfsMem != null) {
@@ -87,6 +87,7 @@ public class Grib2dat implements TimeMangerJob {
                                 String datName = new File(fileName).getName();
                                 String date = datName.substring(0, 10);
                                 String VTI = datName.substring(datName.length() - 3);
+//                                if(gfsMem.getWidth()==0)gfsMem.set
                                 cacheDataFrame.pushData(gfsMem, date + VTI + "_" + isobaricName + "_" + elementName);
                             }
                         }
@@ -128,7 +129,7 @@ public class Grib2dat implements TimeMangerJob {
             System.out.println("正在解析：" + fileName);   ///////////////////////////////
             ElementName elementName = (fileName.contains("JB")) ? ElementName.JB : ElementName.DB;
             for (String isobaricName : Config.getIsobaric()) {
-                System.out.println("正在解析：：：" + isobaricName);///////////////////////////////
+//                System.out.println("正在解析：：：" + isobaricName);///////////////////////////////
                 CacheDataFrame cacheDataFrame = CacheDataFrame.getInstance();
                 GFSMem gfsMem = ReadGrib.getInstance().readDat(fileName, elementName, isobaricName);  /////////
                 String datName = new File(fileName).getName();
@@ -137,7 +138,7 @@ public class Grib2dat implements TimeMangerJob {
             }
         }
         long end = System.currentTimeMillis();
-        System.out.println("读取一个dat文件夹：" + (end - start));
+        System.out.println("读取一个dat文件夹：耗时" + (end - start));
 
         return true;
     }

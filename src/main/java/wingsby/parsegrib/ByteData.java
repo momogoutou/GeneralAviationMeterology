@@ -3,6 +3,8 @@ package wingsby.parsegrib; /**
  */
 
 
+import wingsby.common.tools.ConstantVar;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -101,7 +103,18 @@ public class ByteData {
         return (short)((data0-offset)*scale);
     }
     public static float short2float(short data0,float offset,float scale){
-        return data0/scale+offset;
+        float res=data0/scale+offset;
+        if(Math.abs(res-ConstantVar.NullValF)>1e-6){
+            return res;
+        }else{
+            if(res>0||res==0||res<0);
+            else{
+                System.out.println("NAN"+data0+" "+scale+" "+offset);
+                return ConstantVar.NANF;
+            }
+            return ConstantVar.NullValF;
+        }
+
     }
     ///////////////////////天气情况-----（1~10整数）数据
     public static short string2short(String data){

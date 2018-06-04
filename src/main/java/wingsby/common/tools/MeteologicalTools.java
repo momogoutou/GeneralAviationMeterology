@@ -20,6 +20,7 @@ public class MeteologicalTools {
     }
 
     public static double[] UV2WSWD(double u, double v) {
+        if(Math.abs(u-ConstantVar.NullValF)<1e-6||Math.abs(v-ConstantVar.NullValF)<1e-6)return null;
         double ws = Math.sqrt(u * u + v * v);
         double wd = ConstantVar.NullValF;
         if (MathTools.isDoubleEqual(u, 0.)) {
@@ -41,6 +42,7 @@ public class MeteologicalTools {
     }
 
     public static double[] WSWD2UV(double ws, double wd) {
+        if(Math.abs(ws-ConstantVar.NullValF)<1e-6||Math.abs(wd-ConstantVar.NullValF)<1e-6)return null;
         double seta = 0.;
         if (MathTools.isDoubleEqual(wd, 0.)) return new double[]{0., 0.};
         if ((wd < 180 && wd > 0) || MathTools.isDoubleEqual(wd, 360.))

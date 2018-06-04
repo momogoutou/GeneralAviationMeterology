@@ -56,7 +56,7 @@ public class CacheDataFrame {
         else {
             if (data.getMemSize() > 1024) {
                 map.put(key, data);
-                nowSize();
+                addSize();
                 return true;
             }
             logger.error("加载数据小于1k，不予缓存");
@@ -92,6 +92,15 @@ public class CacheDataFrame {
         }
         useMem = tmpSize;
         return useMem;
+    }
+
+    private void addSize() {
+        long tmpSize = 0;
+        for (String key : map.keySet()) {
+            tmpSize += map.get(key).getMemSize();
+        }
+        useMem = tmpSize;
+//        return useMem;
     }
 
     public Set<String> getKeys() {

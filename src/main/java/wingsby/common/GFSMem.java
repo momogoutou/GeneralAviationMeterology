@@ -6,14 +6,14 @@ import wingsby.parsegrib.ByteData;
 /**
  * Created by wingsby on 2018/4/9.
  */
-public class GFSMem implements CalculateMermory{
+public class GFSMem implements CalculateMermory {
 
-    long startTime=0l;
+    long startTime = 0l;
 
-    long excced=3600l*24*1000l;
+    long excced = 3600l * 24 * 1000l;
 
-    float offset=0;
-    float scale=1;
+    float offset = 0;
+    float scale = 1;
 
     short[][] data;
     int width;
@@ -28,7 +28,6 @@ public class GFSMem implements CalculateMermory{
     String unit;
 
 
-
     public GFSMem(long startTime, float offset, float scale, short[][] data) {
         this.startTime = startTime;
         this.offset = offset;
@@ -38,23 +37,27 @@ public class GFSMem implements CalculateMermory{
 
     @Override
     public long getMemSize() {
-        if(data==null)
+        if (data == null)
             return 0;
-        else{
+        else {
             // header
-            int headersz=32+8;
-            if(key!=null)headersz+=key.length()+30;
-            return headersz+width*8+Short.BYTES*width*height;
+            int headersz = 32 + 8;
+            if (key != null) headersz += key.length() + 30;
+            if (width == 0 || height == 0) {
+                return headersz + data[0].length * 8 + Short.BYTES * data[0].length * data.length;
+
+            }
+            return headersz + width * 8 + Short.BYTES * width * height;
         }
     }
 
     @Override
     public boolean isExceed() {
-        return (System.currentTimeMillis()-startTime)>excced?true:false;
+        return (System.currentTimeMillis() - startTime) > excced ? true : false;
     }
 
 
-    public short[][] getData(){
+    public short[][] getData() {
         return data;
     }
 
@@ -143,27 +146,27 @@ public class GFSMem implements CalculateMermory{
         this.data = data;
     }
 
-//    //通过经纬度、要素获取数据，返回高度及数据
-    public float getByLonLat(float lon,float lat){
-        int yidx= (int) (((lat+90)/getResolution()-(getSlat()+90)/getResolution()));
-        int xidx= (int) ((lon/getResolution()-getSlon()/getResolution()));
-        if(xidx<width&&yidx<height&&xidx>=0&&yidx>=0){
-            if(data!=null){
-                short t=data[yidx][xidx];
-                float res=ByteData.short2float(t,offset,scale);
+    //    //通过经纬度、要素获取数据，返回高度及数据
+    public float getByLonLat(float lon, float lat) {
+        int yidx = (int) (((lat + 90) / getResolution() - (getSlat() + 90) / getResolution()));
+        int xidx = (int) ((lon / getResolution() - getSlon() / getResolution()));
+        if (xidx < width && yidx < height && xidx >= 0 && yidx >= 0) {
+            if (data != null) {
+                short t = data[yidx][xidx];
+                float res = ByteData.short2float(t, offset, scale);
                 return res;
             }
         }
         return ConstantVar.NullValF;
     }
 
-    public String getStrByLonLat(float lon,float lat){
-        int yidx= (int) ((lat/getResolution()-getSlat()/getResolution()));
-        int xidx= (int) ((lon/getResolution()-getSlon()/getResolution()));
-        if(xidx<width&&yidx<height&&xidx>=0&&yidx>=0){
-            if(data!=null){
-                short t=data[yidx][xidx];
-                String res= ByteData.short2string(t);
+    public String getStrByLonLat(float lon, float lat) {
+        int yidx = (int) ((lat / getResolution() - getSlat() / getResolution()));
+        int xidx = (int) ((lon / getResolution() - getSlon() / getResolution()));
+        if (xidx < width && yidx < height && xidx >= 0 && yidx >= 0) {
+            if (data != null) {
+                short t = data[yidx][xidx];
+                String res = ByteData.short2string(t);
                 return res;
             }
         }

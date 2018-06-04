@@ -339,18 +339,18 @@ public class ReadGrib {
     }
 
     //jar包要求：读取开始值，以及读取的个数    90~-90,0~180~0， 数据读取按照从左上到右下读取，左到右，左二到右。。。
-    public int[] getStartAndNum(){
-        int[] start_num=new int[4];
-        float d=Float.parseFloat(Grib2dat.latlonArea[4]);
-        float lat_max = Math.max(Float.parseFloat(Grib2dat.latlonArea[0]),Float.parseFloat(Grib2dat.latlonArea[2]));
-        float lat_min = Math.min(Float.parseFloat(Grib2dat.latlonArea[0]),Float.parseFloat(Grib2dat.latlonArea[2]));
-        start_num[0]=(int)((90-lat_max)/d);
-        start_num[1]=(int)((Float.parseFloat(Grib2dat.latlonArea[1]))/d);
-        if(start_num[1]<0)start_num[1] = (int)(180/d)-start_num[1];
-        start_num[2]=Math.abs((int)((90-lat_min)/d)-start_num[0]);
-        int i=(int)((Float.parseFloat(Grib2dat.latlonArea[3]))/d);
-        if(i<0)i = (int)(180/d)-i;
-        start_num[3]=Math.abs(i-start_num[1]);
+    public int[] getStartAndNum() {
+        int[] start_num = new int[4];
+        float d = Float.parseFloat(Grib2dat.latlonArea[4]);
+        float lat_max = Math.max(Float.parseFloat(Grib2dat.latlonArea[0]), Float.parseFloat(Grib2dat.latlonArea[2]));
+        float lat_min = Math.min(Float.parseFloat(Grib2dat.latlonArea[0]), Float.parseFloat(Grib2dat.latlonArea[2]));
+        start_num[0] = (int) ((90 - lat_max) / d);
+        start_num[1] = (int) ((Float.parseFloat(Grib2dat.latlonArea[1])) / d);
+        if (start_num[1] < 0) start_num[1] = (int) (180 / d) - start_num[1];
+        start_num[2] = Math.abs((int) ((90 - lat_min) / d) - start_num[0]);
+        int i = (int) ((Float.parseFloat(Grib2dat.latlonArea[3])) / d);
+        if (i < 0) i = (int) (180 / d) - i;
+        start_num[3] = Math.abs(i - start_num[1]);
         return start_num;
     }
 
@@ -608,8 +608,21 @@ public class ReadGrib {
         pack();
     }
 
+    //    private void setGFSMem_TMPS(String fileName) {
+//        GFSMem gfsMen_t = ReadGrib.getInstance().readGrib(fileName, ElementName.TMPS0, "surface");
+//        float[][][] data1 = new float[1][lat_num][lon_num];
+//        for (int i = 0; i < lat_num; i++) {
+//            for (int j = 0; j < lon_num; j++) {
+//                float t = ByteData.short2float(gfsMen_t.getData()[i][j], gfsMen_t.getOffset(), gfsMen_t.getScale());
+//                data1[0][i][j] = (float) (t - 273.15);
+//            }
+//        }
+//        setOffsetScale(data1);
+//        element_data = ByteData.changeData(data1, offset, scale);//数据转化short
+//        pack();
+//    }
     private void setGFSMem_TMPS(String fileName) {
-        GFSMem gfsMen_t = ReadGrib.getInstance().readGrib(fileName, ElementName.TMPS0, "surface");
+        GFSMem gfsMen_t = ReadGrib.getInstance().readGrib(fileName, ElementName.TMPS0,"surface");
         float[][][] data1 = new float[1][lat_num][lon_num];
         for (int i = 0; i < lat_num; i++) {
             for (int j = 0; j < lon_num; j++) {
@@ -621,32 +634,36 @@ public class ReadGrib {
         element_data = ByteData.changeData(data1, offset, scale);//数据转化short
         pack();
     }
+
+
     private void setGFSMem_MSL(String fileName) {
         GFSMem gfsMen_t = ReadGrib.getInstance().readGrib(fileName, ElementName.MSL0, "surface");
         float[][][] data1 = new float[1][lat_num][lon_num];
         for (int i = 0; i < lat_num; i++) {
             for (int j = 0; j < lon_num; j++) {
                 float p = ByteData.short2float(gfsMen_t.getData()[i][j], gfsMen_t.getOffset(), gfsMen_t.getScale());
-                data1[0][i][j] = p/100;
+                data1[0][i][j] = p / 100;
             }
         }
         setOffsetScale(data1);
         element_data = ByteData.changeData(data1, offset, scale);//数据转化short
         pack();
     }
+
     private void setGFSMem_PRES(String fileName) {
         GFSMem gfsMen_t = ReadGrib.getInstance().readGrib(fileName, ElementName.PRES0, "surface");
         float[][][] data1 = new float[1][lat_num][lon_num];
         for (int i = 0; i < lat_num; i++) {
             for (int j = 0; j < lon_num; j++) {
                 float p = ByteData.short2float(gfsMen_t.getData()[i][j], gfsMen_t.getOffset(), gfsMen_t.getScale());
-                data1[0][i][j] = p/100;
+                data1[0][i][j] = p / 100;
             }
         }
         setOffsetScale(data1);
         element_data = ByteData.changeData(data1, offset, scale);//数据转化short
         pack();
     }
+
     private void setOffsetScale(float[][][] data1) {
         float[] minmax = getMinMax(data1);
         float[] offsetScale = ByteData.getOffsetScale(minmax[0], minmax[1]);
@@ -787,5 +804,10 @@ public class ReadGrib {
 
     public void setGfsMem(GFSMem gfsMem) {
         this.gfsMem = gfsMem;
+    }
+
+
+    public static void main(String[] args) {
+        Grib2dat.getInstance().parseGrib();
     }
 }

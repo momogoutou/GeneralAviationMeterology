@@ -13,13 +13,17 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import wingsby.common.*;
+import wingsby.common.tools.ConstantVar;
 import wingsby.common.tools.GFSDateTimeTools;
+import wingsby.parsegrib.ByteData;
 import wingsby.parsegrib.Grib2dat;
 import wingsby.service.AviationMeterologyService;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -29,17 +33,24 @@ import java.util.Set;
 @RequestMapping
 public class AviationMeterologyController {
     private static final Logger logger = Logger.getLogger(AviationMeterologyController.class);
-
     private static Grib2dat grib2dat = Grib2dat.getInstance();
-
+    private static Map<String,Integer> uidCache=new HashMap<String,Integer>();
 
     static {
-        Grib2dat.getInstance().parseGrib();
-        Grib2dat.getInstance().parseDat();
+        uidCache.put("968e9bfd-c4b3-4519-a613-2277969086d6",10000);
+        uidCache.put("f07b4db9-4ab5-4bc9-8d6e-7be590606f82",10000);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Grib2dat.getInstance().parseGrib();
+                Grib2dat.getInstance().parseDat();
+            }
+        }).start();
         GFSTimeManger manger =
                 new GFSTimeManger(GFSTimeManger.TIME_PER_DAY,
                         new String[]{"991800", "990200"},
                         grib2dat);
+
     }
 
     @Autowired
@@ -49,20 +60,13 @@ public class AviationMeterologyController {
     @ResponseBody
     public JSONObject forcastPointTest(HttpServletRequest request, HttpServletResponse response) {
         JSONArray heights = new JSONArray();
-//        GFSMem mem=(GFSMem) CacheDataFrame.getInstance().
-//                pullData("2018050612013_9999_TMPS");
-//        float a=mem.getByLonLat(116.8f,39.6f);
-//        System.out.println(a);
-
-
-
         heights.add("500-2");
         heights.add("200-1");
         DateTime time = new DateTime(Calendar.getInstance().getTimeInMillis());
 //        time=new DateTime(2018,4,25,17,0);
         JSONObject dataJSON = new JSONObject();
         try {
-            JSONObject pointJson = iService.getRecentPredictPoint(39.6f, 116f,
+            JSONObject pointJson = iService.getRecentPredictPoint(39.88f, 116.42f,
                     time, heights);
             dataJSON.put("1", pointJson);
             DateTime time2 = time.minusDays(1);
@@ -71,12 +75,12 @@ public class AviationMeterologyController {
         }
         JSONObject resJSON = new JSONObject();
         try {
-            JSONObject pointJson2 = iService.getRecentPredictPoint(40f, 120f,
+            JSONObject pointJson2 = iService.getRecentPredictPoint(30f, 120f,
                     time, heights);
             dataJSON.put("0", pointJson2);
             resJSON.put("code", ResStatus.SUCCESSFUL.getStatusCode());
             resJSON.put("data", dataJSON);
-            resJSON.put("runtime",getTimeStr(time));
+            resJSON.put("runtime", getTimeStr(time));
         } catch (Exception e) {
             e.printStackTrace();
             resJSON.put("code", ResStatus.SEARCH_ERROR.getStatusCode());
@@ -85,44 +89,78 @@ public class AviationMeterologyController {
         return resJSON;
     }
 
-    @RequestMapping(value = "/forecast/test2", method = RequestMethod.POST)
+    @RequestMapping(value = "/testData", method = RequestMethod.GET)
     @ResponseBody
     public JSONObject forcastPointTest2(HttpServletRequest request, HttpServletResponse response) {
-        JSONArray heights = new JSONArray();
-        heights.add("500-2");
-        heights.add("200-1");
-        DateTime time = new DateTime(Calendar.getInstance().getTimeInMillis());
-        JSONObject pointJson = iService.getRecentPredictPoint(40f, 120f,
-                time, heights);
-        JSONObject dataJSON = new JSONObject();
-        dataJSON.put("1", pointJson);
-        DateTime time2 = new DateTime(2018, 8, 23, 20, 0, 0);
-        JSONObject pointJson2 = iService.getRecentPredictPoint(40f, 120f,
-                time, heights);
-        dataJSON.put("0", pointJson2);
-        JSONObject resJSON = new JSONObject();
-        resJSON.put("code", ResStatus.SUCCESSFUL.getStatusCode());
-        resJSON.put("data", dataJSON);
-        resJSON.put("runtime",getTimeStr(time));
+        Object datestr= request.getParameter("time");
+        String lev=request.getParameter("lev");
+        String eles=request.getParameter("eles");
+        String max=request.getParameter("max");
+        String min=request.getParameter("min");
+        DateTime dateTime=DateTime.now();
+        if(datestr!=null){
+            DateTimeFormatter dateformat = DateTimeFormat.forPattern("yyyyMMddHH");
+            try {
+                dateTime = dateformat.parseDateTime(datestr.toString());
+            }catch (Exception e1){
+                logger.error("输入时间参数不正确");
+            }
+        }
+        CacheDataFrame frame=CacheDataFrame.getInstance();
+        String key=null;
+        key=GFSDateTimeTools.getGFSDateTimeVTI(dateTime, 0)+"_"+String.format("%04d",Integer.valueOf(lev))+"_"+eles;
+        GFSMem mem= (GFSMem) frame.pullData(key);
+        JSONObject resJSON=new JSONObject();
+        JSONArray array=new JSONArray();
+        for(int yidx=0;yidx<mem.getHeight();yidx++){
+            for(int xidx=0;xidx<mem.getWidth();xidx++) {
+                short t = mem.getData()[yidx][xidx];
+                float res = ByteData.short2float(t, mem.getOffset(), mem.getScale());
+                if(res>Float.valueOf(max)||res<Float.valueOf(min))array.add(res);
+            }
+        }
+        resJSON.put("wrong data",array);
         return resJSON;
     }
 
 
     @RequestMapping(value = "/forecast/point", method = RequestMethod.POST)
     @ResponseBody
-    public JSONObject forcastPoint(@RequestBody JSONArray array) {
+    public JSONObject forcastPoint(@RequestBody JSONArray array,HttpServletRequest request) {
         long tt = System.currentTimeMillis();
         JSONObject resJSON = new JSONObject();
+        String uid=request.getParameter("uuid");
+        if(uidCache.containsKey(uid)&&uidCache.get(uid)>0)
+            uidCache.put(uid,uidCache.get(uid)-1);
+        else{
+            resJSON.put("code", 303);
+            return resJSON;
+        }
         DateTime dateTime = new DateTime(System.currentTimeMillis());
         try {
             JSONObject dataJSON = new JSONObject();
             for (Object obj : array) {
                 JSONObject requestJson = (JSONObject) obj;
                 int id = (int) requestJson.get("id");
-                float lat = Float.valueOf(requestJson.get("lat").toString());
-                float lon = Float.valueOf(requestJson.get("lng").toString());
+                String strLat = requestJson.get("lat").toString();
+                String strLon = requestJson.get("lng").toString();
+                Object datestr= requestJson.get("time");
+                if(datestr!=null){
+                    DateTimeFormatter dateformat = DateTimeFormat.forPattern("yyyyMMddHH");
+                    try {
+                        dateTime = dateformat.parseDateTime(datestr.toString());
+                    }catch (Exception e1){
+                        logger.error("输入时间参数不正确");
+                    }
+                }
+                if(!strLat.matches("\\d+?.?(\\d+)?")&&strLon.matches("\\d+?.?(\\d+)?")){
+                    dataJSON.put(String.valueOf(id),"参数错误，经纬度范围为15~55,80~130");
+                    logger.error("参数输入：北纬"+strLat+" 东经"+strLon+"参数错误，经纬度范围为15~55N,80~130E");
+                    continue;
+                }
+                float lat = Float.valueOf(strLat);
+                float lon = Float.valueOf(strLon);
                 JSONArray heights = (JSONArray) requestJson.get("heights");
-//                dateTime=new DateTime(2018,4,25,17,0);
                 JSONObject pointJson = iService.getRecentPredictPoint(lat, lon, dateTime, heights);
                 dataJSON.put(String.valueOf(id), pointJson);
             }
@@ -130,19 +168,44 @@ public class AviationMeterologyController {
             resJSON.put("delay", (System.currentTimeMillis() - tt));
             resJSON.put("code", ResStatus.SUCCESSFUL.getStatusCode());
             resJSON.put("data", dataJSON);
-            resJSON.put("runtime",getTimeStr(dateTime));
-//            JSONUtil.writeJSONToResponse(response, resJSON);
+            resJSON.put("runtime", getTimeStr(dateTime));
             return resJSON;
         } catch (Exception e) {
-            logger.error("日志信息查询:" + e);
+            logger.error("数据查询失败:" + e);
             resJSON.put("code", ResStatus.SEARCH_ERROR.getStatusCode());
-//            JSONUtil.writeJSONToResponse(response, resJSON);
             return resJSON;
         }
 
     }
 
-    private String getTimeStr(DateTime useDate){
+
+
+    @RequestMapping(value = "/meminfo", method = RequestMethod.GET)
+    @ResponseBody
+    public JSONObject meminfo() {
+        long tt = System.currentTimeMillis();
+        JSONObject resJSON = new JSONObject();
+        DateTime dateTime = new DateTime(System.currentTimeMillis());
+        try {
+            CacheDataFrame frame=CacheDataFrame.getInstance();
+            JSONObject dataJson = new JSONObject();
+            dataJson.put("used memory",frame.getMemUsed()/1024./1024.+"MB");
+            dataJson.put("total memory",frame.getMemTotal()/1024./1024.+"MB");
+            dataJson.put("Avail memory",frame.getMemAvail()/1024./1024.+"MB");
+            dataJson.put("keys",frame.getKeys());
+            resJSON.put("data",dataJson);
+            return resJSON;
+        } catch (Exception e) {
+            logger.error("内存查询:" + e);
+            resJSON.put("code", ResStatus.SEARCH_ERROR.getStatusCode());
+            return resJSON;
+        }
+
+    }
+
+
+
+    private String getTimeStr(DateTime useDate) {
         String timeVTI = GFSDateTimeTools.getGFSDateTimeVTI(useDate, 0);
         Set<String> keys = CacheDataFrame.getInstance().getKeys();
         boolean timeExists = false;
@@ -155,11 +218,13 @@ public class AviationMeterologyController {
         if (!timeExists)             //往前推12个小时
             timeVTI = GFSDateTimeTools.getGFSDateTimeVTI(useDate, 12);
         DateTimeFormatter dateformat = DateTimeFormat.forPattern("yyyyMMddHH");
-        if(timeVTI!=null&&timeVTI.length()>10){
-            DateTime time=dateformat.parseDateTime(timeVTI.substring(0,10));
-            time=time.plusHours(8);
+        if (timeVTI != null && timeVTI.length() > 10) {
+            DateTime time = dateformat.parseDateTime(timeVTI.substring(0, 10));
+            time = time.plusHours(8);
             return time.toString("yyyyMMddHH");
-        }else return null;
+        } else return null;
     }
+
+
 
 }

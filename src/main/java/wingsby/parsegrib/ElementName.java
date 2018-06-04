@@ -66,11 +66,12 @@ public enum ElementName {
     TMP0("Temperature_isobaric", "大气温度", "temperature_isobaric", "K"),
 
     //地面温度
-    TMPS("Temperature_surface_C", "地面温度", "surface", "°C"),  //单位需要转化k到度
+//    TMPS("Temperature_surface_C", "地面温度", "surface", "°C"),  //单位需要转化k到度
+    TMPS("Temperature_height_above_ground_C", "地面温度", "surface", "°C"),  //单位需要转化k到度 //wangye 2m气温
     /*
     地面温度
      */
-    TMPS0("Temperature_surface", "地面温度", "temperature_surface", "K"),
+    TMPS0("Temperature_height_above_ground", "地面温度", "temperature_surface", "K"),
 
     //本站海压
     MSL("Pressure_reduced_to_MSL_msl_C", "本站海压", "surface", "Pa"),
