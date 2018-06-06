@@ -22,6 +22,15 @@
         <property name="fileEncoding" value="UTF-8"></property>
     </bean>
 
+    <bean id = "PropertyPlaceholderConfigurerID" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="ignoreResourceNotFound" value="true"/>
+        <property name="locations">
+            <list>
+                <value>classpath:database.properties</value>
+            </list>
+        </property>
+    </bean>
+
 
 
        <!-- 开启spring注释 -->
@@ -29,7 +38,7 @@
     <context:component-scan base-package="wingsby"/>
 
     <!-- 导入关联配置 -->
-    <!--<import resource="classpath:spring/spring-config-database-dbcp.xml"/>-->
-    <!--<import resource="classpath:spring/spring-config-redis.xml"/>-->
+    <import resource="classpath:spring/spring-config-database-dbcp.xml"/>
+    <import resource="classpath:spring/spring-config-redis.xml"/>
 
 </beans>

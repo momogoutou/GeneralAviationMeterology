@@ -83,11 +83,11 @@ public class Grib2dat implements TimeMangerJob {
                             CacheDataFrame cacheDataFrame = CacheDataFrame.getInstance();
                             GFSMem gfsMem = ReadGrib.getInstance().readGrib(fileName, elementName, isobaricName);
                             if (gfsMem != null) {
-//                            String datName = fileName.split("\\\\")[fileName.split("\\\\").length - 1];
+//                              String datName = fileName.split("\\\\")[fileName.split("\\\\").length - 1];
                                 String datName = new File(fileName).getName();
                                 String date = datName.substring(0, 10);
                                 String VTI = datName.substring(datName.length() - 3);
-//                                if(gfsMem.getWidth()==0)gfsMem.set
+//                              if(gfsMem.getWidth()==0)gfsMem.set
                                 cacheDataFrame.pushData(gfsMem, date + VTI + "_" + isobaricName + "_" + elementName);
                             }
                         }
@@ -97,19 +97,20 @@ public class Grib2dat implements TimeMangerJob {
                             System.out.println();
                         }
                         GFSMem gfsMem = ReadGrib.getInstance().readGrib(fileName, elementName, "surface");
-//                    String datName = fileName.split("\\\\")[fileName.split("\\\\").length - 1];
+//                      String datName = fileName.split("\\\\")[fileName.split("\\\\").length - 1];
                         String datName = new File(fileName).getName();
                         String date = datName.substring(0, 10);
                         String VTI = datName.substring(datName.length() - 3);
                         cacheDataFrame.pushData(gfsMem, date + VTI + "_" + "9999" + "_" + elementName);
                     }
                 }
-                CacheDataFrame cacheDataFrame = CacheDataFrame.getInstance();
+//              CacheDataFrame cacheDataFrame = CacheDataFrame.getInstance();
                 long end = System.currentTimeMillis();
                 System.out.println("读取45数组：" + (end - start));
             } catch (Exception e) {
                 e.printStackTrace();
             }
+            System.gc();
         }
         return true;
     }
@@ -139,7 +140,6 @@ public class Grib2dat implements TimeMangerJob {
         }
         long end = System.currentTimeMillis();
         System.out.println("读取一个dat文件夹：耗时" + (end - start));
-
         return true;
     }
 

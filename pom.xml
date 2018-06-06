@@ -18,6 +18,7 @@
         <commons-io.version>2.4</commons-io.version>
         <redis.clients.version>2.8.1</redis.clients.version>
         <mybatis.version>3.4.5</mybatis.version>
+        <mysql.driver.version>5.1.30</mysql.driver.version>
     </properties>
 
     <dependencies>
@@ -118,10 +119,16 @@
         </dependency>
 
         <dependency>
-            <groupId>edu.ucar</groupId>
-            <artifactId>netcdf</artifactId>
-            <version>4.2.20</version>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>${mysql.driver.version}</version>
         </dependency>
+
+        <!--<dependency>-->
+            <!--<groupId>edu.ucar</groupId>-->
+            <!--<artifactId>netcdf</artifactId>-->
+            <!--<version>4.2.20</version>-->
+        <!--</dependency>-->
 
         <dependency>
             <groupId>edu.ucar</groupId>
