@@ -1,13 +1,11 @@
-package wingsby.parsegrib; /**
+package wingsby.parsegrib;
+/**
  * Created by desktop13 on 2017/12/20.
  */
-
 
 import wingsby.common.tools.ConstantVar;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 
 /**
@@ -69,7 +67,7 @@ public class ByteData {
     public static float[] getOffsetScale(float mindata,float maxdata){
         float[] offsetScale= new float[2];
         offsetScale[0] = maxdata-( maxdata-mindata)/2;
-        offsetScale[1] = (float) shortLimit[1]/(maxdata-mindata)/2;
+        offsetScale[1] =( ( maxdata-mindata)/2>1)?(float) shortLimit[1]/(maxdata-mindata)/2 : (float) shortLimit[1]-1-offsetScale[0];
         return  offsetScale;
     }
     public static short[][] changeData(float[][][][] data,float offset,float scale){
@@ -98,13 +96,13 @@ public class ByteData {
 
         return element_data;
     }
-    ////////////////////////数据存储
+    ////////////////////////数据存储,对于float2short的nan数据，变成了0，后面交给short2float做
     public static short float2short(float data0,float offset,float scale){
         return (short)((data0-offset)*scale);
     }
     public static float short2float(short data0,float offset,float scale){
         float res=data0/scale+offset;
-        if(Math.abs(res-ConstantVar.NullValF)>1e-6){
+        if(Math.abs(res- ConstantVar.NullValF)>1e-6){
             return res;
         }else{
             if(res>0||res==0||res<0);
