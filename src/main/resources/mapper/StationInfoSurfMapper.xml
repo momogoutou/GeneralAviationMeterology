@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="wingsby.stationFC">
+    <resultMap id="StationInfoSurfBeanMap" type="wingsby.stationFC.StationInfoSurfBeanCP">
+        <id column="id" property="ID" jdbcType="INTEGER"/>
+        <result column="station_code" property="stationCode" jdbcType="VARCHAR"/>
+        <result column="cname" property="cname" jdbcType="VARCHAR"/>
+        <result column="ename" property="ename" jdbcType="VARCHAR"/>
+        <result column="lat" property="lat" jdbcType="FLOAT"/>
+        <result column="lng" property="lng" jdbcType="FLOAT"/>
+        <result column="py" property="py" jdbcType="VARCHAR"/>
+        <result column="level" property="level" jdbcType="VARCHAR"/>
+
+        <result column="types" property="types" jdbcType="INTEGER"/>
+        <result column="typep" property="typep" jdbcType="INTEGER"/>
+        <result column="typet" property="typet" jdbcType="INTEGER"/>
+        <result column="country_code" property="countryCode" jdbcType="VARCHAR"/>
+        <result column="city_id" property="cityCode" jdbcType="VARCHAR"/>
+    </resultMap>
+
+
+    <sql id="StationInfo_Base_Column_List">
+		station_code, cname, ename, lat, lng, py, "level", types, typep, typet, country_code, city_id
+	</sql>
+
+    <!--按站号精确查询-->
+    <select id="selectbyStationCode"
+            parameterType="HashMap"
+            resultMap="StationInfoSurfBeanMap">
+        SELECT
+        <include refid="StationInfo_Base_Column_List"/>
+        FROM ZD_STATION
+        <where>
+            station_code = #{stationCode}
+        </where>
+    </select>
+
+
+    <select id="selectCityStationCodeMap"
+            parameterType="HashMap"
+            resultMap="StationInfoSurfBeanMap">
+        SELECT
+        station_code, city_code
+        FROM ZD_STATION
+        <where>
+            city_code is not null
+        </where>
+    </select>
+
+    <select id="selecStationCodeList"
+            parameterType="HashMap"
+            resultMap="StationInfoSurfBeanMap">
+        SELECT
+        <include refid="StationInfo_Base_Column_List"/>
+        FROM ZD_STATION
+        <where>
+            typep = 1 and typet = 1 and types = 1 and
+            (station_code like '1%' or station_code like '2%' or station_code like '3%'
+            or station_code like '4%' or station_code like '5%')
+        </where>
+        ORDER BY station_code ASC
+    </select>
+
+    <!--按中英文名称 站号及拼音模糊查询，只返回limit条记录-->
+    <!--<select id="selectbyPyNameCode"-->
+            <!--parameterType="HashMap"-->
+            <!--resultMap="StationInfoSurfBeanMap">-->
+        <!--SELECT t.*-->
+        <!--FROM-->
+        <!--(SELECT-->
+        <!--<include refid="StationInfo_Base_Column_List"/>, rownum-->
+        <!--FROM zd_station-->
+        <!--<where>-->
+                <!--py LIKE CONCAT(#{param}, '%')-->
+            <!--OR cname LIKE CONCAT(#{param}, '%')-->
+            <!--OR ename LIKE CONCAT(#{param}, '%')-->
+            <!--OR station_code LIKE CONCAT(#{param}, '%')-->
+        <!--</where>-->
+        <!--ORDER BY py ASC) t-->
+
+        <!--<where>-->
+            <!--rownum &lt; #{limit}-->
+        <!--</where>-->
+
+        <!--&lt;!&ndash;<if test="limit != null">&ndash;&gt;-->
+        <!--&lt;!&ndash;limit #{limit} offset 0&ndash;&gt;-->
+        <!--&lt;!&ndash;</if>&ndash;&gt;-->
+        <!--&lt;!&ndash;<if test="limit == null">&ndash;&gt;-->
+        <!--&lt;!&ndash;limit 10 offset 0&ndash;&gt;-->
+        <!--&lt;!&ndash;</if>&ndash;&gt;-->
+    <!--</select>-->
+
+
+    <select id="selectbyPyNameCode"
+            parameterType="HashMap"
+            resultMap="StationInfoSurfBeanMap">
+        SELECT *
+        <!--<include refid="StationInfo_Base_Column_List"/>-->
+        FROM ZD_STATION
+        <where>
+            py LIKE CONCAT(#{param}, '%')
+            OR cname LIKE CONCAT(#{param}, '%')
+            OR ename LIKE CONCAT(#{param}, '%')
+            OR station_code LIKE CONCAT(#{param}, '%')
+        </where>
+        ORDER BY py ASC
+        <if test="limit != null">
+        limit #{limit} offset 0
+        </if>
+        <if test="limit == null">
+        limit 10 offset 0
+        </if>
+    </select>
+
+
+    <!--按中文名称精确查询，按拼音模糊查询，只返回limit条记录-->
+    <!--<select id="selectbyCnameOrPy"-->
+            <!--parameterType="HashMap"-->
+            <!--resultMap="StationInfoSurfBeanMap">-->
+        <!--SELECT-->
+        <!--<include refid="StationInfo_Base_Column_List"/>-->
+        <!--FROM zd_station-->
+        <!--<where>-->
+            <!--<if test="cname != null">-->
+                <!--AND cname = #{cname}-->
+            <!--</if>-->
+            <!--<if test="py != null">-->
+                <!--AND py LIKE CONCAT(#{py}, '%')-->
+            <!--</if>-->
+        <!--</where>-->
+        <!--ORDER BY cname ASC-->
+        <!--&lt;!&ndash;<if test="limit != null">&ndash;&gt;-->
+            <!--&lt;!&ndash;limit #{limit} offset 0&ndash;&gt;-->
+        <!--&lt;!&ndash;</if>&ndash;&gt;-->
+        <!--&lt;!&ndash;<if test="limit == null">&ndash;&gt;-->
+            <!--&lt;!&ndash;limit 10 offset 0&ndash;&gt;-->
+        <!--&lt;!&ndash;</if>&ndash;&gt;-->
+    <!--</select>-->
+      <select id="selectbyCnameOrPy"
+            parameterType="HashMap"
+            resultMap="StationInfoSurfBeanMap">
+        SELECT
+        <include refid="StationInfo_Base_Column_List"/>
+        FROM ZD_STATION
+        <where>
+            <if test="cname != null">
+                AND cname LIKE CONCAT(#{cname}, '%')
+            </if>
+            <if test="py != null">
+                AND py LIKE CONCAT(#{py}, '%')
+            </if>
+        </where>
+        ORDER BY cname ASC
+        <if test="limit != null">
+        limit #{limit} offset 0
+        </if>
+    </select>
+
+
+    <!--查询距离给定经纬度最近的站点,查询结果按由近到远排列，最多10条记录-->
+    <select id="selectNearestbyLatLng"
+            parameterType="HashMap"
+            resultMap="StationInfoSurfBeanMap">
+        SELECT<include refid="StationInfo_Base_Column_List"/>, abs(lat - #{slat}) + abs(lng - #{slng}) resdeltaxy
+        FROM ZD_STATION
+        <where>
+            <if test="slat != null">
+                lat &gt; (#{slat} - #{deltay}) AND lat &lt; (#{slat} + #{deltay})
+            </if>
+            <if test="slng != null">
+                AND lng &gt; (#{slng} - #{deltax}) AND lng &lt; (#{slng} + #{deltax})
+            </if>
+            <if test="dataType == 'GK'">
+                and (typep =1 OR typet =1)
+            </if>
+        </where>
+        ORDER BY resdeltaxy ASC
+        limit 10 offset 0
+    </select>
+
+</mapper>
