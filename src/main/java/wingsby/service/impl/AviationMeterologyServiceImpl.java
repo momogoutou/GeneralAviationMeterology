@@ -48,19 +48,19 @@ public class AviationMeterologyServiceImpl implements AviationMeterologyService 
     @Override
     public JSONObject getRecentPredictPoint(float lat, float lon, DateTime useDate, JSONArray heights) {
         JSONObject pointJson = new JSONObject();
-        long stime=System.currentTimeMillis();
-        JSONObject cityFcJson =null;
+        long stime = System.currentTimeMillis();
+        JSONObject cityFcJson = null;
         StationInfoSurfBeanCP stationInfoSurfBeanCP = stationDataFCService.getNearstStaionFromLatLng(lat, lon, "DM", 0.8f);
         if (stationInfoSurfBeanCP == null || (stationInfoSurfBeanCP != null && stationInfoSurfBeanCP.getCityCode() == null))
             ;
         else {
             cityFcJson = stationDataFCService.getDataByStationCode(stationInfoSurfBeanCP.getStationCode(), useDate);
         }
-        System.out.println(System.currentTimeMillis()-stime+"ms");
+        System.out.println(System.currentTimeMillis() - stime + "ms");
         for (int i = 0; i < 5; i++) {
             DateTime curTime = useDate.plusHours(i);
             try {
-                JSONObject hourJson = hourForcast(lat, lon, curTime, heights,cityFcJson);
+                JSONObject hourJson = hourForcast(lat, lon, curTime, heights, cityFcJson);
                 if (hourJson != null) {
                     pointJson.put(String.valueOf(curTime.getHourOfDay()), hourJson);
                 }
@@ -72,7 +72,7 @@ public class AviationMeterologyServiceImpl implements AviationMeterologyService 
         return pointJson;
     }
 
-    private JSONObject hourForcast(float lat, float lon, DateTime useDate, JSONArray heights,JSONObject cityFcJson) {
+    private JSONObject hourForcast(float lat, float lon, DateTime useDate, JSONArray heights, JSONObject cityFcJson) {
         //起报时间的json
         JSONObject resJson = new JSONObject();
         String timeVTI = GFSDateTimeTools.getGFSDateTimeVTI(useDate, 0);
@@ -130,7 +130,7 @@ public class AviationMeterologyServiceImpl implements AviationMeterologyService 
                 }
                 float gh = dao.getGFSPointData(timeVTI, "9999", ElementName.HGTS.name(), lat, lon);
                 hhs.add(gh);
-                List<Float[]> formatData = LagrangeInterpolation.formatData(vals, hhs, gh,false);
+                List<Float[]> formatData = LagrangeInterpolation.formatData(vals, hhs, gh, false);
                 if (Math.abs(gh - ConstantVar.NullValF) < 1e-5)
                     throw new Exception("位势高度无数据，无法插值");
                 if (formatData != null && formatData.size() > 0 && formatData.get(0) != null && formatData.get(0).length > 0) {
@@ -151,7 +151,7 @@ public class AviationMeterologyServiceImpl implements AviationMeterologyService 
                         String wstr = dao.getWeatherComment(timeVTI, "9999", surfaceEles.name(), lat, lon);
                         surfaceJson.put(surfaceEles.name(), wstr);
                     } else {
-                        if (surfaceEles.name().equals("PLCB")&&useDate.getHourOfDay()==13){
+                        if (surfaceEles.name().equals("PLCB") && useDate.getHourOfDay() == 13) {
                             System.out.println();
                         }
                         float val = dao.getGFSPointData(timeVTI, "9999", surfaceEles.name(), lat, lon);
@@ -162,9 +162,9 @@ public class AviationMeterologyServiceImpl implements AviationMeterologyService 
                                 if (levs != null && hhs != null) {
                                     //地面气压
                                     val = val / 100f;
-                                    float slp=dao.getGFSPointData(timeVTI, "9999", ElementName.MSL.name(), lat, lon);
+                                    float slp = dao.getGFSPointData(timeVTI, "9999", ElementName.MSL.name(), lat, lon);
                                     levs.add(slp);
-                                    List<Float[]> formatData = LagrangeInterpolation.formatData(hhs, levs, slp,true);
+                                    List<Float[]> formatData = LagrangeInterpolation.formatData(hhs, levs, slp, true);
                                     if (formatData != null && formatData.size() > 0 && formatData.get(0) != null && formatData.get(0).length > 0) {
                                         val = LagrangeInterpolation.interpolation3(formatData, val);
                                         if (val <= 50) {
@@ -181,13 +181,15 @@ public class AviationMeterologyServiceImpl implements AviationMeterologyService 
                 }
             }
         }
+
+
         //添加天气情况
 //        DateTime time = useDate.plusHours(24);
 //        long start = System.currentTimeMillis();
         for (ElemCityFC elem : ElemCityFC.values()) {
             if (elem.xchkNouse()) continue;
             Object fcstr = getCityFC(useDate,
-                    lat, lon, elem.getEname(),cityFcJson);
+                    lat, lon, elem.getEname(), cityFcJson);
             if (fcstr == null) {
                 String gfsele = MergeTools.getGFSFromFC(elem.getEname());
                 if (gfsele != null) {
@@ -212,6 +214,17 @@ public class AviationMeterologyServiceImpl implements AviationMeterologyService 
                 }
             }
         }
+
+        //基于城镇预报判断是否添加底云高
+        //数据融合以城镇预报为主
+        if (surfaceJson != null) {
+            Float cnl = surfaceJson.getFloat("CNL");
+            if (cnl != null && cnl < 5) {
+                Float plcb = surfaceJson.getFloat("PLCB");
+                if (plcb != null && Math.abs(plcb - ConstantVar.NullValF) > 1e-6)
+                    surfaceJson.put("PLCB", ConstantVar.NANF);
+            }
+        }
 //        System.out.println(System.currentTimeMillis() - start + "ms");
         int k = 0;
         //高空
@@ -230,10 +243,8 @@ public class AviationMeterologyServiceImpl implements AviationMeterologyService 
     }
 
 
-
-
-    private Object getCityFC(DateTime dateTime, float lat, float lon, String elem,JSONObject cityFcJson) {
-        if(cityFcJson==null||cityFcJson.isEmpty())return null;
+    private Object getCityFC(DateTime dateTime, float lat, float lon, String elem, JSONObject cityFcJson) {
+        if (cityFcJson == null || cityFcJson.isEmpty()) return null;
         try {
             Object obj = cityFcJson.get("data");
             Object tobj = cityFcJson.get("runtime");
@@ -246,8 +257,8 @@ public class AviationMeterologyServiceImpl implements AviationMeterologyService 
             String res = null;
             if (obj != null) {
                 if (obj instanceof JSONObject) {
-                    String eleJsonstr= ((JSONObject) obj).get(elem).toString();
-                    JSONObject eleJson=JSONObject.parseObject(eleJsonstr);
+                    String eleJsonstr = ((JSONObject) obj).get(elem).toString();
+                    JSONObject eleJson = JSONObject.parseObject(eleJsonstr);
                     Object resVal = null;
                     if (difhour <= 48) {
                         resVal = ((JSONObject) eleJson).get(String.valueOf((int) Math.ceil(difhour / 3.) * 3));
@@ -353,8 +364,8 @@ public class AviationMeterologyServiceImpl implements AviationMeterologyService 
             vs.add((float) uv[0]);
             hhs.add(gh);
         }
-        List<Float[]> formatU = LagrangeInterpolation.formatData(us, hhs, gh,false);
-        List<Float[]> formatV = LagrangeInterpolation.formatData(vs, hhs, gh,false);
+        List<Float[]> formatU = LagrangeInterpolation.formatData(us, hhs, gh, false);
+        List<Float[]> formatV = LagrangeInterpolation.formatData(vs, hhs, gh, false);
         if (formatU != null && formatU.size() > 0 && formatU.get(0) != null && formatU.get(0).length > 0
                 && formatV != null && formatV.size() > 0 && formatV.get(0) != null && formatV.get(0).length > 0) {
             List<Float> interU = calculateInterpolationData(heights, formatU, gh, lat, lon);
@@ -398,7 +409,7 @@ public class AviationMeterologyServiceImpl implements AviationMeterologyService 
                     interpolationData = 0.5f * interpolationData + 0.5f * LagrangeInterpolation.LinearInterpolation(formatData, ch);
 //                    if (interpolationData > max || interpolationData < min)
 //                        interpolationData = LagrangeInterpolation.LinearInterpolation(formatData, ch);
-                    System.out.println("插值数据检查:"+interpolationData+"max "+max+"min "+min);
+                    System.out.println("插值数据检查:" + interpolationData + "max " + max + "min " + min);
                 }
                 //保留三位小数
                 res.add(Math.round(interpolationData * 1000) / 1000f);
