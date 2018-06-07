@@ -664,7 +664,7 @@ public class ReadGrib {
         pack();
     }
 
-    private void setOffsetScale(float[][][] data1) {
+    public void setOffsetScale(float[][][] data1) {
         float[] minmax = getMinMax(data1);
         float[] offsetScale = ByteData.getOffsetScale(minmax[0], minmax[1]);
         float offset = offsetScale[0];
@@ -673,7 +673,7 @@ public class ReadGrib {
         setScale(scale);
     }
 
-    private void setOffsetScale(float[][][][] data1) {
+    public void setOffsetScale(float[][][][] data1) {
         float[] minmax = getMinMax(data1);
         float[] offsetScale = ByteData.getOffsetScale(minmax[0], minmax[1]);
         float offset = offsetScale[0];

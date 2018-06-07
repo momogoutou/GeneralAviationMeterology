@@ -2,16 +2,19 @@ package wingsby.parsegrib;
 
 
 import org.joda.time.DateTime;
-import wingsby.common.TimeMangerJob;
 import wingsby.common.CacheDataFrame;
+import wingsby.common.CalculateMermory;
 import wingsby.common.GFSMem;
+import wingsby.common.TimeMangerJob;
 import wingsby.common.tools.GFSDateTimeTools;
 
-import java.io.*;
+import java.io.File;
+import java.lang.reflect.Field;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -72,17 +75,17 @@ public class Grib2dat implements TimeMangerJob {
             return false;
         }
         for (String fileName : fileNames) {
+            if(cashIsExist( fileName ))continue;    //对cash重复部分不解析
             System.out.println("正在解析：" + fileName);
             try {
                 long start = System.currentTimeMillis(); /////////////////////////////////////////////////////
                 for (ElementName elementName : ElementName.values()) {
-                    if(elementName.name().equals("PLCB")){
-                        System.out.println();
-                    }
+//                    if(!elementName.geteName().equals("Vertical_velocity_pressure_isobaric")) continue;
                     System.out.println("正在解析：：：" + elementName.geteName());//////////////////////////////////////////////////
                     if (elementName.getType().equals( "isobaric") ){                   //多层
                         for (String isobaricName : isobaric) {
-//                            System.out.println("正在解析：：：" + isobaricName);///////////////////////////////
+//                            if(isobaricName.equals("0975"))
+                            System.out.println("正在解析：：：" + isobaricName);///////////////////////////////
                             CacheDataFrame cacheDataFrame = CacheDataFrame.getInstance();
                             GFSMem gfsMem = ReadGrib.getInstance().readGrib(fileName, elementName, isobaricName);
                             if (gfsMem != null) {
@@ -176,7 +179,30 @@ public class Grib2dat implements TimeMangerJob {
         return new String[]{path, path2};
     }
 
+    //对缓存设置成去重功能
+    private boolean cashIsExist(String fileName){
+        CacheDataFrame cacheDataFrame = CacheDataFrame.getInstance();
+        Map<String, CalculateMermory> map = null;
+        Boolean flag = false;   //不存在
 
+        String datName = new File(fileName).getName();
+        String date = datName.substring(0, 10);
+        String VTI = datName.substring(datName.length() - 3);
+        try {
+            Field field1=cacheDataFrame.getClass().getDeclaredField("map");
+            field1.setAccessible(true);
+            map = (Map)field1.get(cacheDataFrame);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        for (String key:map.keySet()) {
+            if(key.contains(date+VTI)) {
+                flag = true;
+                break;
+            }
+        }
+        return flag;
+    }
     @Override
     public void doJob() {
         try {
