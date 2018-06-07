@@ -48,7 +48,7 @@ public class AviationMeterologyController {
         }).start();
         GFSTimeManger manger =
                 new GFSTimeManger(GFSTimeManger.TIME_PER_DAY,
-                        new String[]{"991800", "990200"},
+                        new String[]{"991800", "992200","990200","990600","991100"},
                         grib2dat);
 
     }

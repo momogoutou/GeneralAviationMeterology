@@ -49,10 +49,13 @@ public class AviationMeterologyServiceImpl implements AviationMeterologyService 
     public JSONObject getRecentPredictPoint(float lat, float lon, DateTime useDate, JSONArray heights) {
         JSONObject pointJson = new JSONObject();
         long stime=System.currentTimeMillis();
+        JSONObject cityFcJson =null;
         StationInfoSurfBeanCP stationInfoSurfBeanCP = stationDataFCService.getNearstStaionFromLatLng(lat, lon, "DM", 0.8f);
         if (stationInfoSurfBeanCP == null || (stationInfoSurfBeanCP != null && stationInfoSurfBeanCP.getCityCode() == null))
-            return null;
-        JSONObject cityFcJson = stationDataFCService.getDataByStationCode(stationInfoSurfBeanCP.getStationCode(), useDate);
+            ;
+        else {
+            cityFcJson = stationDataFCService.getDataByStationCode(stationInfoSurfBeanCP.getStationCode(), useDate);
+        }
         System.out.println(System.currentTimeMillis()-stime+"ms");
         for (int i = 0; i < 5; i++) {
             DateTime curTime = useDate.plusHours(i);
@@ -148,10 +151,13 @@ public class AviationMeterologyServiceImpl implements AviationMeterologyService 
                         String wstr = dao.getWeatherComment(timeVTI, "9999", surfaceEles.name(), lat, lon);
                         surfaceJson.put(surfaceEles.name(), wstr);
                     } else {
+                        if (surfaceEles.name().equals("PLCB")){
+                            System.out.println();
+                        }
                         float val = dao.getGFSPointData(timeVTI, "9999", surfaceEles.name(), lat, lon);
 //                        System.out.println(val);
                         if (surfaceEles.name().equals("PLCB") && Math.abs(val - ConstantVar.NANF) > 2) {
-                            if (val < 70000) {
+                            if (val > 70000) {
                                 //将气压转高度
                                 if (levs != null && hhs != null) {
                                     //地面气压
@@ -391,6 +397,7 @@ public class AviationMeterologyServiceImpl implements AviationMeterologyService 
                     interpolationData = 0.5f * interpolationData + 0.5f * LagrangeInterpolation.LinearInterpolation(formatData, ch);
                     if (interpolationData > max || interpolationData < min)
                         interpolationData = LagrangeInterpolation.LinearInterpolation(formatData, ch);
+                    System.out.println("插值数据检查:"+interpolationData+"max "+max+"min "+min);
                 }
                 //保留三位小数
                 res.add(Math.round(interpolationData * 1000) / 1000f);

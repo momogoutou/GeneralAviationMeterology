@@ -76,6 +76,9 @@ public class Grib2dat implements TimeMangerJob {
             try {
                 long start = System.currentTimeMillis(); /////////////////////////////////////////////////////
                 for (ElementName elementName : ElementName.values()) {
+                    if(elementName.name().equals("PLCB")){
+                        System.out.println();
+                    }
                     System.out.println("正在解析：：：" + elementName.geteName());//////////////////////////////////////////////////
                     if (elementName.getType().equals( "isobaric") ){                   //多层
                         for (String isobaricName : isobaric) {
