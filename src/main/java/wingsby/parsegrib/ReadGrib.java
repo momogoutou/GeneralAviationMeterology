@@ -4,15 +4,20 @@ import ucar.ma2.InvalidRangeException;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
 import ucar.nc2.dataset.NetcdfDataset;
-import wingsby.common.tools.ConstantVar;
 import wingsby.common.GFSMem;
+import wingsby.common.tools.ConstantVar;
 import wingsby.common.tools.MeteologicalTools;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.text.DecimalFormat;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -80,6 +85,7 @@ public class ReadGrib {
         NetcdfFile ncfile = null;
         try {
             String isobaricName;
+//            fileName = "F:\\nc\\data_GribExtract\\2018060312\\2018060312_gfs.t00z.pgrb2.0p25.f002";  ///////////////////////////////////////
             ncfile = NetcdfDataset.open(fileName, null);
             //可能用到的一维数据
             Variable time = ncfile.findVariable("time");
@@ -362,50 +368,60 @@ public class ReadGrib {
         float standardDeviation = 0;
         float[] minMax = new float[2];
         int data_num = data[0][0].length * data[0][0][0].length;
+        int data_num_NoNaN = 0;     //除去无效数据部分,且无效数据排序时系统认为是大值
         float[] data1 = new float[data_num];
         for (int i = 0; i < data[0][0].length; i++) {
             for (int ii = 0; ii < data[0][0][0].length; ii++) {
-                sum = sum + data[0][0][i][ii];
+                if(!Float.isNaN(data[0][0][i][ii]) ) {
+                    sum = sum + data[0][0][i][ii];
+                    data_num_NoNaN++;
+                }
                 data1[i * data[0][0][0].length + ii] = data[0][0][i][ii];
             }
         }
         Arrays.sort(data1);  //排序
-        average = sum / data_num;
+        average = sum / data_num_NoNaN;
         for (int i = 0; i < data[0][0].length; i++) {
             for (int ii = 0; ii < data[0][0][0].length; ii++) {
-                sn = sn + Math.pow((data[0][0][i][ii] - average), 2);
+                if(!Float.isNaN(data[0][0][i][ii]) )
+                    sn = sn + Math.pow((data[0][0][i][ii] - average), 2);
             }
         }
-        standardDeviation = (float) Math.sqrt(sn / data_num);  //计算方差
-        minMax[0] = data1[(int) (data_num * 0.01)] - standardDeviation;
-        minMax[1] = data1[(int) (data_num * 0.99)] + standardDeviation;
+        standardDeviation = (float) Math.sqrt(sn / data_num_NoNaN);  //计算方差
+        minMax[0] = data1[(int) (data_num_NoNaN * 0.01)] - standardDeviation;
+        minMax[1] = data1[(int) (data_num_NoNaN * 0.99)] + standardDeviation;
         return minMax;
     }
 
     private float[] getMinMax(float[][][] data) {
-        float sum = 0;
+        float sum = 0;  //和
         double sn = 0;
         float average = 0;
         float standardDeviation = 0;
         float[] minMax = new float[2];
         int data_num = data[0].length * data[0][0].length;
+        int data_num_NoNaN = 0;     //除去无效数据部分,且无效数据排序时系统认为是大值
         float[] data1 = new float[data_num];
         for (int i = 0; i < data[0].length; i++) {
             for (int ii = 0; ii < data[0][0].length; ii++) {
-                sum = sum + data[0][i][ii];
+                if(!Float.isNaN(data[0][i][ii]) ) {
+                    sum = sum + data[0][i][ii];
+                    data_num_NoNaN++;
+                }
                 data1[i * data[0][0].length + ii] = data[0][i][ii];
             }
         }
         Arrays.sort(data1);  //排序
-        average = sum / data_num;
+        average = sum / data_num_NoNaN;
         for (int i = 0; i < data[0].length; i++) {
             for (int ii = 0; ii < data[0][0].length; ii++) {
+                if(!Float.isNaN(data[0][i][ii]) )
                 sn = sn + Math.pow((data[0][i][ii] - average), 2);
             }
         }
-        standardDeviation = (float) Math.sqrt(sn / data_num);  //计算方差
-        minMax[0] = data1[(int) (data_num * 0.01)] - standardDeviation;
-        minMax[1] = data1[(int) (data_num * 0.99)] + standardDeviation;
+        standardDeviation = (float) Math.sqrt(sn / data_num_NoNaN);  //计算方差
+        minMax[0] = data1[(int) (data_num_NoNaN * 0.01)] - standardDeviation;
+        minMax[1] = data1[(int) (data_num_NoNaN * 0.99)] + standardDeviation;
         return minMax;
     }
 
