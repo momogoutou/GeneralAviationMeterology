@@ -130,7 +130,7 @@ public class AviationMeterologyServiceImpl implements AviationMeterologyService 
                 }
                 float gh = dao.getGFSPointData(timeVTI, "9999", ElementName.HGTS.name(), lat, lon);
                 hhs.add(gh);
-                List<Float[]> formatData = LagrangeInterpolation.formatData(vals, hhs, gh);
+                List<Float[]> formatData = LagrangeInterpolation.formatData(vals, hhs, gh,false);
                 if (Math.abs(gh - ConstantVar.NullValF) < 1e-5)
                     throw new Exception("位势高度无数据，无法插值");
                 if (formatData != null && formatData.size() > 0 && formatData.get(0) != null && formatData.get(0).length > 0) {
@@ -151,7 +151,7 @@ public class AviationMeterologyServiceImpl implements AviationMeterologyService 
                         String wstr = dao.getWeatherComment(timeVTI, "9999", surfaceEles.name(), lat, lon);
                         surfaceJson.put(surfaceEles.name(), wstr);
                     } else {
-                        if (surfaceEles.name().equals("PLCB")){
+                        if (surfaceEles.name().equals("PLCB")&&useDate.getHourOfDay()==13){
                             System.out.println();
                         }
                         float val = dao.getGFSPointData(timeVTI, "9999", surfaceEles.name(), lat, lon);
@@ -162,8 +162,9 @@ public class AviationMeterologyServiceImpl implements AviationMeterologyService 
                                 if (levs != null && hhs != null) {
                                     //地面气压
                                     val = val / 100f;
-                                    levs.add(dao.getGFSPointData(timeVTI, "9999", ElementName.MSL0.name(), lat, lon));
-                                    List<Float[]> formatData = LagrangeInterpolation.formatData(hhs, levs, val);
+                                    float slp=dao.getGFSPointData(timeVTI, "9999", ElementName.MSL.name(), lat, lon);
+                                    levs.add(slp);
+                                    List<Float[]> formatData = LagrangeInterpolation.formatData(hhs, levs, slp,true);
                                     if (formatData != null && formatData.size() > 0 && formatData.get(0) != null && formatData.get(0).length > 0) {
                                         val = LagrangeInterpolation.interpolation3(formatData, val);
                                         if (val <= 50) {
@@ -352,8 +353,8 @@ public class AviationMeterologyServiceImpl implements AviationMeterologyService 
             vs.add((float) uv[0]);
             hhs.add(gh);
         }
-        List<Float[]> formatU = LagrangeInterpolation.formatData(us, hhs, gh);
-        List<Float[]> formatV = LagrangeInterpolation.formatData(vs, hhs, gh);
+        List<Float[]> formatU = LagrangeInterpolation.formatData(us, hhs, gh,false);
+        List<Float[]> formatV = LagrangeInterpolation.formatData(vs, hhs, gh,false);
         if (formatU != null && formatU.size() > 0 && formatU.get(0) != null && formatU.get(0).length > 0
                 && formatV != null && formatV.size() > 0 && formatV.get(0) != null && formatV.get(0).length > 0) {
             List<Float> interU = calculateInterpolationData(heights, formatU, gh, lat, lon);

@@ -85,7 +85,7 @@ public class LagrangeInterpolation {
         return res;
     }
 
-    public static List<Float[]> formatData(List<Float> vals, List<Float> hh,float gh) {
+    public static List<Float[]> formatData(List<Float> vals, List<Float> hh,float gh,boolean desc) {
         if (vals == null || hh == null) return null;
         if (vals.size() != hh.size()) return null;
         List<Float[]> res = new ArrayList<>();
@@ -93,8 +93,12 @@ public class LagrangeInterpolation {
             if (Math.abs(vals.get(i) - ConstantVar.NullValF) < 1e-6 ||
                     Math.abs(hh.get(i) - ConstantVar.NullValF) < 1e-6) ;
             else {
-                if(hh.get(i)>=gh)
+                if(!desc) {
+                    if (hh.get(i) >= gh)
+                        res.add(new Float[]{vals.get(i), hh.get(i)});
+                }else if (hh.get(i) <= gh)
                     res.add(new Float[]{vals.get(i), hh.get(i)});
+
             }
         }
         //排序
@@ -123,4 +127,8 @@ public class LagrangeInterpolation {
         fres.add(x);
         return fres;
     }
+
+
+
+
 }
