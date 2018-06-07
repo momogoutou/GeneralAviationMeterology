@@ -81,8 +81,7 @@ public class LagrangeInterpolation {
             logger.info("无法实现内插，请检查输入");
             return ConstantVar.NullValF;
         }
-        float res=y[idx[0]]+(y[idx[1]]-x[idx[0]])/(x[idx[1]]-x[idx[0]])*(ch-x[idx[0]]);
-
+        float res=y[idx[0]]+(y[idx[1]]-y[idx[0]])/(x[idx[1]]-x[idx[0]])*(ch-x[idx[0]]);
         return res;
     }
 

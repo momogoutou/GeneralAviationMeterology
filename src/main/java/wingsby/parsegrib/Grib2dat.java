@@ -1,6 +1,7 @@
 package wingsby.parsegrib;
 
 
+import com.sun.scenario.effect.impl.sw.sse.SSEBlend_SRC_OUTPeer;
 import org.joda.time.DateTime;
 import wingsby.common.CacheDataFrame;
 import wingsby.common.CalculateMermory;
@@ -81,6 +82,9 @@ public class Grib2dat implements TimeMangerJob {
                 long start = System.currentTimeMillis(); /////////////////////////////////////////////////////
                 for (ElementName elementName : ElementName.values()) {
 //                    if(!elementName.geteName().equals("Vertical_velocity_pressure_isobaric")) continue;
+                    if(elementName.name().equals("PLCB")){
+                        System.out.println();
+                    }
                     System.out.println("正在解析：：：" + elementName.geteName());//////////////////////////////////////////////////
                     if (elementName.getType().equals( "isobaric") ){                   //多层
                         for (String isobaricName : isobaric) {
