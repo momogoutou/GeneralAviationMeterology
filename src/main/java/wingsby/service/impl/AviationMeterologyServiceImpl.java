@@ -395,8 +395,8 @@ public class AviationMeterologyServiceImpl implements AviationMeterologyService 
                 //平滑极值
                 if (interpolationData > max || interpolationData < min) {
                     interpolationData = 0.5f * interpolationData + 0.5f * LagrangeInterpolation.LinearInterpolation(formatData, ch);
-                    if (interpolationData > max || interpolationData < min)
-                        interpolationData = LagrangeInterpolation.LinearInterpolation(formatData, ch);
+//                    if (interpolationData > max || interpolationData < min)
+//                        interpolationData = LagrangeInterpolation.LinearInterpolation(formatData, ch);
                     System.out.println("插值数据检查:"+interpolationData+"max "+max+"min "+min);
                 }
                 //保留三位小数
