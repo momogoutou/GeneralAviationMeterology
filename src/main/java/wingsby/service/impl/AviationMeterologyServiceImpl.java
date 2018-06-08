@@ -50,7 +50,7 @@ public class AviationMeterologyServiceImpl implements AviationMeterologyService 
         JSONObject pointJson = new JSONObject();
         long stime = System.currentTimeMillis();
         JSONObject cityFcJson = null;
-        StationInfoSurfBeanCP stationInfoSurfBeanCP = stationDataFCService.getNearstStaionFromLatLng(lat, lon, "DM", 0.8f);
+        StationInfoSurfBeanCP stationInfoSurfBeanCP = stationDataFCService.getNearstStaionFromLatLng(lat, lon, "DM", 3f);
         if (stationInfoSurfBeanCP == null || (stationInfoSurfBeanCP != null && stationInfoSurfBeanCP.getCityCode() == null))
             ;
         else {
@@ -86,14 +86,13 @@ public class AviationMeterologyServiceImpl implements AviationMeterologyService 
                 break;
             }
         }
-
-        if (!timeExists)             //往前推12个小时
+        //无数据时往前推12个小时
+        if (!timeExists)
             timeVTI = GFSDateTimeTools.getGFSDateTimeVTI(useDate, 12);
         boolean wswdFlag = false;
         List<Float> hhs = null;
         List<Float> levs = null;
         for (ElementName eles : alleles) {
-//            if(eles.equals(ElementName.HGT))continue;
             try {
                 List<Float> vals = new ArrayList<>();
                 hhs = new ArrayList<>();
@@ -110,19 +109,12 @@ public class AviationMeterologyServiceImpl implements AviationMeterologyService 
                     float hh = dao.getGFSPointData(timeVTI, lev, ElementName.HGT.name(), lat, lon);
                     if (Math.abs(hh - ConstantVar.NullValF) < 1e-5)
                         throw new Exception("位势高度无数据，无法插值");
-//                    if (eles.equals(ElementName.TMP)) {
-//                        System.out.println();
-//                    }
                     hhs.add(hh);
                     vals.add(val);
                     levs.add(Float.valueOf(lev));
                 }
                 //添加地面层次
                 //地面高空特定要素匹配
-//                if (eles.equals(ElementName.TMP) || eles.equals(ElementName.TMPS)) {
-//                    System.out.println();
-//                }
-                //todo 将要素分类处理
                 if (eles.equals(ElementName.VVEL) || eles.equals(ElementName.JB) || eles.equals(ElementName.DB)) {
                     vals.add(0f);
                 } else {
@@ -138,6 +130,7 @@ public class AviationMeterologyServiceImpl implements AviationMeterologyService 
                     map.put(eles.name(), idata);
                 }
             } catch (Exception e) {
+                System.out.println(e.getMessage());
             }
         }
         //地面
@@ -195,14 +188,25 @@ public class AviationMeterologyServiceImpl implements AviationMeterologyService 
                 if (gfsele != null) {
                     if (ElementName.valueOf(gfsele).geteName().contains("weather"))
                         fcstr = dao.getWeatherComment(timeVTI, "9999", gfsele, lat, lon);
-                    else
+                    else {
                         fcstr = dao.getGFSPointData(timeVTI, "9999", gfsele, lat, lon);
+                        try {
+                            if (gfsele.equals("CN") || gfsele.equals("CNL")) {
+                                if (fcstr != null) {
+                                    fcstr = Float.valueOf(fcstr.toString()) * 10;
+                                }
+                            }
+                        }catch (Exception e){
+                            System.out.println(fcstr.getClass());
+                        }
+                    }
                 }
             }
             if (elem.equals(ElemCityFC.WW)) {
                 surfaceJson.put(elem.getEname(), fcstr == null ? " " : fcstr);
             } else {
                 surfaceJson.put(elem.getEname(), fcstr == null ? -9999f : fcstr);
+                // 原来接口就有问题,WS,WD都是String
                 if (elem.equals(ElemCityFC.WS) || elem.equals(ElemCityFC.WD)) {
                     if (fcstr != null & fcstr instanceof String) {
                         try {

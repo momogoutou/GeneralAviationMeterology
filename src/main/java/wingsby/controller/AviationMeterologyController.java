@@ -56,37 +56,15 @@ public class AviationMeterologyController {
     @Autowired
     private AviationMeterologyService iService;
 
-    @RequestMapping(value = "/forecast/test", method = RequestMethod.GET)
+    @RequestMapping(value = "/forecast/mem", method = RequestMethod.GET)
     @ResponseBody
     public JSONObject forcastPointTest(HttpServletRequest request, HttpServletResponse response) {
-        JSONArray heights = new JSONArray();
-        heights.add("500-2");
-        heights.add("200-1");
-        DateTime time = new DateTime(Calendar.getInstance().getTimeInMillis());
-//        time=new DateTime(2018,4,25,17,0);
-        JSONObject dataJSON = new JSONObject();
-        try {
-            JSONObject pointJson = iService.getRecentPredictPoint(39.88f, 116.42f,
-                    time, heights);
-            dataJSON.put("1", pointJson);
-            DateTime time2 = time.minusDays(1);
-        } catch (Exception e1) {
-            e1.printStackTrace();
-        }
-        JSONObject resJSON = new JSONObject();
-        try {
-            JSONObject pointJson2 = iService.getRecentPredictPoint(30f, 120f,
-                    time, heights);
-            dataJSON.put("0", pointJson2);
-            resJSON.put("code", ResStatus.SUCCESSFUL.getStatusCode());
-            resJSON.put("data", dataJSON);
-            resJSON.put("runtime", getTimeStr(time));
-        } catch (Exception e) {
-            e.printStackTrace();
-            resJSON.put("code", ResStatus.SEARCH_ERROR.getStatusCode());
-        }
-//        resJSON.put("runtime",getTimeStr(time));
-        return resJSON;
+       //内存监控
+        JSONObject jsonObject=new JSONObject();
+        jsonObject.put("total",Runtime.getRuntime().totalMemory()/1024./1024.+"MB");
+        jsonObject.put("max",Runtime.getRuntime().maxMemory()/1024./1024.+"MB");
+        jsonObject.put("free",Runtime.getRuntime().freeMemory()/1024./1024.+"MB");
+        return jsonObject;
     }
 
     @RequestMapping(value = "/testData", method = RequestMethod.GET)
