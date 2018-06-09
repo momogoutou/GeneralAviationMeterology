@@ -17,6 +17,7 @@ public class GFSTimeManger {
 
     private static final long PERIOD_DAY = 24 * 60 * 60 * 1000l;
     private static final long PERIOD_HOUR = 60 * 60 * 1000l;
+    private static final long PERIOD_MINUTE = 60 * 1000l;
     private static final long PERIOD_WEEK = 7 * 24 * 60 * 60 * 1000l;
     private static final long tolerance = 5 * 60 * 1000l;
 //    private static final long testp = 61 * 1000l;
@@ -57,14 +58,14 @@ public class GFSTimeManger {
         };
         Timer timer = new Timer();
         String str = dates[0];
-        int DAY = Integer.valueOf(str.substring(0, 2));
-        int hour = Integer.valueOf(str.substring(2, 4));
-        int minute = Integer.valueOf(str.substring(4, 6));
+        //最近往后推10分钟执行
         Calendar tcalendar = Calendar.getInstance();
-        tcalendar.set(Calendar.HOUR_OF_DAY, hour);
-        tcalendar.set(Calendar.MINUTE, minute);
-        timer.scheduleAtFixedRate(timerTask, tcalendar.getTime(), PERIOD_HOUR);
-//        timer.schedule();
+        int minute=10-tcalendar.get(Calendar.MINUTE)%10;
+        if(minute>1)
+            tcalendar.add(Calendar.MINUTE,minute);
+        else tcalendar.add(Calendar.MINUTE,minute+10);
+        timer.scheduleAtFixedRate(timerTask, tcalendar.getTime(), 10*PERIOD_MINUTE);
+
     }
 
 

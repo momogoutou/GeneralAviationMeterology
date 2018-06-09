@@ -1,7 +1,9 @@
 package wingsby.parsegrib;
 
 
+import com.alibaba.fastjson.JSONObject;
 import com.sun.scenario.effect.impl.sw.sse.SSEBlend_SRC_OUTPeer;
+import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
 import wingsby.common.CacheDataFrame;
 import wingsby.common.CalculateMermory;
@@ -22,6 +24,8 @@ import java.util.Map;
  * Created by desktop13 on 2017/12/20.
  */
 public class Grib2dat implements TimeMangerJob {
+
+    static final Logger logger=Logger.getLogger(Grib2dat.class);
     //配置文件信息
     static String inPath;
     static String outPath;
@@ -210,8 +214,15 @@ public class Grib2dat implements TimeMangerJob {
     @Override
     public void doJob() {
         try {
+            logger.info("[dataprocess]开始处理数据");
             parseGrib();
             parseDat();
+            JSONObject jsonObject=new JSONObject();
+            jsonObject.put("total",Runtime.getRuntime().totalMemory()/1024./1024.+"MB");
+            jsonObject.put("max",Runtime.getRuntime().maxMemory()/1024./1024.+"MB");
+            jsonObject.put("free",Runtime.getRuntime().freeMemory()/1024./1024.+"MB");
+            logger.info("[memory]"+jsonObject.toString());
+
         } catch (Exception e) {
             e.printStackTrace();
         }

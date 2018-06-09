@@ -14,6 +14,7 @@ public class CacheDataFrame {
     private static final Logger logger = Logger.getLogger(CacheDataFrame.class);
     private final Map<String, CalculateMermory> map = new ConcurrentHashMap<>();
     private static long limit = 1024l * 1024 * 1024;
+//    private static long limit = 10l * 1024 * 1024;
     private volatile long useMem = 0l;
     private float factor = 0.9f;
     private static int clearTimes = 10;
@@ -42,6 +43,7 @@ public class CacheDataFrame {
             for (String tmp : map.keySet()) {
                 CalculateMermory mem = map.get(tmp);
                 if (mem.isExceed()) {
+                    logger.info("清除过期数据");
                     map.remove(tmp);
                     synchronized (map) {
                         useMem -= mem.getMemSize();

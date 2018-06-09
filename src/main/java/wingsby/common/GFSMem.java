@@ -11,6 +11,8 @@ public class GFSMem implements CalculateMermory {
     long startTime = 0l;
 
     long excced = 3600l * 24 * 1000l;
+//    long excced =  120 * 1000l;
+
 
     float offset = 0;
     float scale = 1;
