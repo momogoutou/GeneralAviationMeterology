@@ -3,6 +3,7 @@ package wingsby.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -39,6 +40,8 @@ import java.util.*;
  */
 @Service
 public class AviationMeterologyServiceImpl implements AviationMeterologyService {
+
+    private static final Logger logger=Logger.getLogger(AviationMeterologyServiceImpl.class);
     @Autowired
     private AviationMeterologyDao dao;
 
@@ -50,11 +53,16 @@ public class AviationMeterologyServiceImpl implements AviationMeterologyService 
         JSONObject pointJson = new JSONObject();
         long stime = System.currentTimeMillis();
         JSONObject cityFcJson = null;
-        StationInfoSurfBeanCP stationInfoSurfBeanCP = stationDataFCService.getNearstStaionFromLatLng(lat, lon, "DM", 3f);
-        if (stationInfoSurfBeanCP == null || (stationInfoSurfBeanCP != null && stationInfoSurfBeanCP.getCityCode() == null))
-            ;
-        else {
-            cityFcJson = stationDataFCService.getDataByStationCode(stationInfoSurfBeanCP.getStationCode(), useDate);
+        try {
+            StationInfoSurfBeanCP stationInfoSurfBeanCP = stationDataFCService.getNearstStaionFromLatLng(lat, lon, "DM", 3f);
+            if (stationInfoSurfBeanCP == null || (stationInfoSurfBeanCP != null && stationInfoSurfBeanCP.getCityCode() == null))
+                ;
+            else {
+                cityFcJson = stationDataFCService.getDataByStationCode(stationInfoSurfBeanCP.getStationCode(), useDate);
+            }
+        }catch (Exception e){
+            logger.error("数据库或redis无法连接");
+            logger.error(e.getMessage());
         }
         System.out.println(System.currentTimeMillis() - stime + "ms");
         for (int i = 0; i < 5; i++) {

@@ -63,6 +63,7 @@ public class Grib2dat implements TimeMangerJob {
 
     //主逻辑方法parseGrib
     public boolean parseGrib() {
+        logger.info("[dataprocess]开始处理数据");
 //        List<String> fileNames_0=ChooseDir.getFileList(inPath,fileStyle);
         String[] datePath = getDatePath(inPath);
         if (datePath == null) return false;
