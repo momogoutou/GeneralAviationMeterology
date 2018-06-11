@@ -12,20 +12,20 @@ public enum ElementName {
     /*
     大气分层
      */
-    HGT("Geopotential_height_isobaric", "位势高度", "isobaric", "gpm"),  //位势米
-    RH("Relative_humidity_isobaric", "大气湿度", "isobaric", "%"),
-    VVEL("Vertical_velocity_pressure_isobaric", "大气垂直风速", "isobaric", "m/s"),
+    HGT("Geopotential_height_isobaric", "位势高度", "isobaric", "gpm",100000f,0f),  //位势米
+    RH("Relative_humidity_isobaric", "大气湿度", "isobaric", "%",100f,0f),
+    VVEL("Vertical_velocity_pressure_isobaric", "大气垂直风速", "isobaric", "m/s",-5f,5f),
     /*
     地面
      */
-    VIS("Visibility_surface", "能见度", "surface", "m"),
-    HGTS("Geopotential_height_surface", "地面位势", "surface", "gpm"),
+    VIS("Visibility_surface", "能见度", "surface", "m",100000f,0f),
+    HGTS("Geopotential_height_surface", "地面位势", "surface", "gpm",100000f,0f),
 
-    RHS("Relative_humidity_height_above_ground", "2m相对湿度", "surface", "%"),   //4维[1][1][721][1440]
-    GUST("Wind_speed_gust_surface", "阵风", "surface", "m/s"),
-    TCDC("Total_cloud_cover_entire_atmosphere_2_Hour_Average","总云量","surface","%"),
-    TCDCL("Total_cloud_cover_low_cloud_2_Hour_Average","低层云量","surface","%"),
-    PLCB("Pressure_low_cloud_bottom_2_Hour_Average","低云云底高度","surface","Pa"),
+    RHS("Relative_humidity_height_above_ground", "2m相对湿度", "surface", "%",100f,0f),   //4维[1][1][721][1440]
+    GUST("Wind_speed_gust_surface", "阵风", "surface", "m/s",100f,0f),
+    TCDC("Total_cloud_cover_entire_atmosphere_2_Hour_Average","总云量","surface","%",100f,0f),
+    TCDCL("Total_cloud_cover_low_cloud_2_Hour_Average","低层云量","surface","%",100f,0f),
+    PLCB("Pressure_low_cloud_bottom_2_Hour_Average","低云云底高度","surface","Pa",100000f,0f),
 //**************************************************************************************************************************
 
     //合成输出要素
@@ -41,25 +41,25 @@ public enum ElementName {
     TR("Total_precipitation_surface_2_Hour_Accumulation", "降水量", "weather_condition", "kg.m-2"),
 
     //uv变成speed和direction
-    WS("wind_speed", "水平风速", "isobaric", "m/s"),
-    WD("wind_direction", "水平风向", "isobaric", "°"),
+    WS("wind_speed", "水平风速", "isobaric", "m/s",200f,0f),
+    WD("wind_direction", "水平风向", "isobaric", "°",360f,0f),
     /*
     风速风向
      */
-    U("u-component_of_wind_isobaric", "大气水平风U", "wind_isobaric", "m/s"),
-    V("v-component_of_wind_isobaric", "大气水平风V", "wind_isobaric", "m/s"),
+    U("u-component_of_wind_isobaric", "大气水平风U", "wind_isobaric", "m/s",200f,0f),
+    V("v-component_of_wind_isobaric", "大气水平风V", "wind_isobaric", "m/s",200f,0f),
 
     //地面uv变成speed和direction
-    WSS("wind_speed_surface", "水平风速", "surface", "m/s"),
-    WDS("wind_direction_surface", "水平风向", "surface", "°"),
+    WSS("wind_speed_surface", "水平风速", "surface", "m/s",100f,0f),
+    WDS("wind_direction_surface", "水平风向", "surface", "°",360f,0f),
     /*
     风速风向
      */
-    VS("v-component_of_wind_height_above_ground", "地面风V", "wind_surface", "m/s"),   //4维度，[1][3][721][1440],3维度只取10m的
-    US("u-component_of_wind_height_above_ground", "地面风U", "wind_surface", "m/s"),   //4维度，[1][3][721][1440],3维度只取10m的
+    VS("v-component_of_wind_height_above_ground", "地面风V", "wind_surface", "m/s",100f,0f),   //4维度，[1][3][721][1440],3维度只取10m的
+    US("u-component_of_wind_height_above_ground", "地面风U", "wind_surface", "m/s",100f,0f),   //4维度，[1][3][721][1440],3维度只取10m的
 
     //大气温度
-    TMP("Temperature_isobaric_C", "大气温度", "isobaric", "°C"),   //单位需要转化k到度
+    TMP("Temperature_isobaric_C", "大气温度", "isobaric", "°C",50f,-150f),   //单位需要转化k到度
     /*
     大气温度
      */
@@ -67,43 +67,55 @@ public enum ElementName {
 
     //地面温度
 //    TMPS("Temperature_surface_C", "地面温度", "surface", "°C"),  //单位需要转化k到度
-    TMPS("Temperature_height_above_ground_C", "地面温度", "surface", "°C"),  //单位需要转化k到度 //wangye 2m气温
+    TMPS("Temperature_height_above_ground_C", "地面温度", "surface", "°C",50f,-60f),  //单位需要转化k到度 //wangye 2m气温
     /*
     地面温度
      */
     TMPS0("Temperature_height_above_ground", "地面温度", "temperature_surface", "K"),
 
     //本站海压
-    MSL("Pressure_reduced_to_MSL_msl_C", "本站海压", "surface", "Pa"),
+    MSL("Pressure_reduced_to_MSL_msl_C", "本站海压", "surface", "Pa",120000,80000),
     /*
     本站海压
      */
     MSL0("Pressure_reduced_to_MSL_msl", "本站海压", "MSL_msl", "Pa"),
     //本站气压=地面气压
     PRES("Pressure_surface_C", "本站气压", "surface", "Pa"),
-    PRES0("Pressure_surface", "本站气压", "PRES_surface", "Pa"),
+    PRES0("Pressure_surface", "本站气压", "PRES_surface", "Pa",130000,40000),
 
 //***********************************************************************************************************************
 
     //外部传入
-    JB("JB", "积冰", "isobaric"),
-    DB("DB", "颠簸", "isobaric"),;
+    JB("JB", "积冰", "isobaric","",5f,0f),
+    DB("DB", "颠簸", "isobaric","",5f,0f),;
 
     private String eName;//英文描述
     private String type;
     private String cName;//中文描述
     private String units;//单位
+    private float max;
+    private float min;
 
     /**
      * 私有构造,防止被外部调用
      *
      * @param eName
      */
+    private ElementName(String eName, String cName, String type, String units,float max,float min) {
+        this.eName = eName;
+        this.cName = cName;
+        this.type = type;
+        this.units = units;
+        this.max=max;
+        this.min=min;
+    }
+
     private ElementName(String eName, String cName, String type, String units) {
         this.eName = eName;
         this.cName = cName;
         this.type = type;
         this.units = units;
+
     }
 
     private ElementName(String eName, String cName, String type) {
@@ -176,5 +188,17 @@ public enum ElementName {
             }
         }
         return null;
+    }
+
+    public String getUnits() {
+        return units;
+    }
+
+    public float getMax() {
+        return max;
+    }
+
+    public float getMin() {
+        return min;
     }
 }

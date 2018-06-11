@@ -41,7 +41,7 @@ import java.util.*;
 @Service
 public class AviationMeterologyServiceImpl implements AviationMeterologyService {
 
-    private static final Logger logger=Logger.getLogger(AviationMeterologyServiceImpl.class);
+    private static final Logger logger = Logger.getLogger(AviationMeterologyServiceImpl.class);
     @Autowired
     private AviationMeterologyDao dao;
 
@@ -60,7 +60,7 @@ public class AviationMeterologyServiceImpl implements AviationMeterologyService 
             else {
                 cityFcJson = stationDataFCService.getDataByStationCode(stationInfoSurfBeanCP.getStationCode(), useDate);
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             logger.error("数据库或redis无法连接");
             logger.error(e.getMessage());
         }
@@ -135,7 +135,13 @@ public class AviationMeterologyServiceImpl implements AviationMeterologyService 
                     throw new Exception("位势高度无数据，无法插值");
                 if (formatData != null && formatData.size() > 0 && formatData.get(0) != null && formatData.get(0).length > 0) {
                     List<Float> idata = calculateInterpolationData(heights, formatData, gh, lat, lon);
-                    map.put(eles.name(), idata);
+                    List<Float> fdata=new ArrayList<>();
+                    for(Float v:idata){
+                        if(v>eles.getMax())v=eles.getMax();
+                        if(v<eles.getMin())v=eles.getMin();
+                         fdata.add(v);
+                    }
+                    map.put(eles.name(), fdata);
                 }
             } catch (Exception e) {
                 System.out.println(e.getMessage());
@@ -152,11 +158,10 @@ public class AviationMeterologyServiceImpl implements AviationMeterologyService 
                         String wstr = dao.getWeatherComment(timeVTI, "9999", surfaceEles.name(), lat, lon);
                         surfaceJson.put(surfaceEles.name(), wstr);
                     } else {
-                        if (surfaceEles.name().equals("PLCB") && useDate.getHourOfDay() == 13) {
-                            System.out.println();
-                        }
+//                        if (surfaceEles.name().equals("PLCB") && useDate.getHourOfDay() == 13) {
+//                            System.out.println();
+//                        }
                         float val = dao.getGFSPointData(timeVTI, "9999", surfaceEles.name(), lat, lon);
-//                        System.out.println(val);
                         if (surfaceEles.name().equals("PLCB") && Math.abs(val - ConstantVar.NANF) > 2) {
                             if (val > 70000) {
                                 //将气压转高度
@@ -204,7 +209,7 @@ public class AviationMeterologyServiceImpl implements AviationMeterologyService 
                                     fcstr = Float.valueOf(fcstr.toString()) * 10;
                                 }
                             }
-                        }catch (Exception e){
+                        } catch (Exception e) {
                             System.out.println(fcstr.getClass());
                         }
                     }
@@ -244,8 +249,9 @@ public class AviationMeterologyServiceImpl implements AviationMeterologyService 
         for (Object hhstr : heights) {
             JSONObject levJson = new JSONObject();
             for (String key : map.keySet()) {
-                if (map.get(key).size() > 0)
+                if (map.get(key).size() > 0) {
                     levJson.put(key, map.get(key).get(k));
+                }
             }
             k++;
             resJson.put(String.valueOf(hhstr), levJson);
