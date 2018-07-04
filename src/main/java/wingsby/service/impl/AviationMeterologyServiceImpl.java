@@ -427,11 +427,11 @@ public class AviationMeterologyServiceImpl implements AviationMeterologyService 
                         interpolationData = 0.5f * interpolationData + 0.5f * LagrangeInterpolation.LinearInterpolation(formatData, ch);
 //                    if (interpolationData > max || interpolationData < min)
 //                        interpolationData = LagrangeInterpolation.LinearInterpolation(formatData, ch);
-                        System.out.println("插值数据检查:" + interpolationData + "max " + max + "min " + min);
+                        logger.info("插值数据检查:" + interpolationData + "max " + max + "min " + min);
                     }
                     //保留三位小数
                     res.add(Math.round(interpolationData * 1000) / 1000f);
-                }
+                }else res.add(ConstantVar.NullValF);
             } else res.add(ConstantVar.NullValF);
         }
         return res;
