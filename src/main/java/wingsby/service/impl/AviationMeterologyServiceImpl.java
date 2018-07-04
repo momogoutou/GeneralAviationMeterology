@@ -249,7 +249,7 @@ public class AviationMeterologyServiceImpl implements AviationMeterologyService 
         for (Object hhstr : heights) {
             JSONObject levJson = new JSONObject();
             for (String key : map.keySet()) {
-                if (map.get(key).size() > 0) {
+                if (map.get(key).size() > 0&&map.get(key).size()>k) {
                     levJson.put(key, map.get(key).get(k));
                 }
             }
