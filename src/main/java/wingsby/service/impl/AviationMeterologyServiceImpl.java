@@ -135,11 +135,11 @@ public class AviationMeterologyServiceImpl implements AviationMeterologyService 
                     throw new Exception("位势高度无数据，无法插值");
                 if (formatData != null && formatData.size() > 0 && formatData.get(0) != null && formatData.get(0).length > 0) {
                     List<Float> idata = calculateInterpolationData(heights, formatData, gh, lat, lon);
-                    List<Float> fdata=new ArrayList<>();
-                    for(Float v:idata){
-                        if(v>eles.getMax())v=eles.getMax();
-                        if(v<eles.getMin())v=eles.getMin();
-                         fdata.add(v);
+                    List<Float> fdata = new ArrayList<>();
+                    for (Float v : idata) {
+                        if (v > eles.getMax()) v = eles.getMax();
+                        if (v < eles.getMin()) v = eles.getMin();
+                        fdata.add(v);
                     }
                     map.put(eles.name(), fdata);
                 }
@@ -287,7 +287,6 @@ public class AviationMeterologyServiceImpl implements AviationMeterologyService 
                     if (resVal != null) {
                         return resVal;
                     }
-
                 }
             }
         } catch (Exception e) {
@@ -421,17 +420,19 @@ public class AviationMeterologyServiceImpl implements AviationMeterologyService 
                 } else {
                     ch = Float.valueOf(str[0]);
                 }
-                float interpolationData = LagrangeInterpolation.interpolation3(formatData, ch);
-                //平滑极值
-                if (interpolationData > max || interpolationData < min) {
-                    interpolationData = 0.5f * interpolationData + 0.5f * LagrangeInterpolation.LinearInterpolation(formatData, ch);
+                if (ch > gh) {
+                    float interpolationData = LagrangeInterpolation.interpolation3(formatData, ch);
+                    //平滑极值
+                    if (interpolationData > max || interpolationData < min) {
+                        interpolationData = 0.5f * interpolationData + 0.5f * LagrangeInterpolation.LinearInterpolation(formatData, ch);
 //                    if (interpolationData > max || interpolationData < min)
 //                        interpolationData = LagrangeInterpolation.LinearInterpolation(formatData, ch);
-                    System.out.println("插值数据检查:" + interpolationData + "max " + max + "min " + min);
+                        System.out.println("插值数据检查:" + interpolationData + "max " + max + "min " + min);
+                    }
+                    //保留三位小数
+                    res.add(Math.round(interpolationData * 1000) / 1000f);
                 }
-                //保留三位小数
-                res.add(Math.round(interpolationData * 1000) / 1000f);
-            } else res.add(ch);
+            } else res.add(ConstantVar.NullValF);
         }
         return res;
     }

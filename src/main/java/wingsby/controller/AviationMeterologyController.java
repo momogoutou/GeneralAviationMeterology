@@ -41,8 +41,8 @@ public class AviationMeterologyController {
     // 过期代码 310 303无权限
 
     static {
-        uidCache.put("968e9bfd-c4b3-4519-a613-2277969086d6", 10000);
-        uidCache.put("f07b4db9-4ab5-4bc9-8d6e-7be590606f82", 10000);
+        uidCache.put("968e9bfd-c4b3-4519-a613-2277969086d6", 100000);
+        uidCache.put("f07b4db9-4ab5-4bc9-8d6e-7be590606f82", 100000);
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -139,18 +139,20 @@ public class AviationMeterologyController {
         long tt = System.currentTimeMillis();
         JSONObject resJSON = new JSONObject();
         String uid = request.getParameter("uuid");
+        if(uid==null){
+            String username = request.getParameter("user");
+            String token = request.getParameter("token");
+            int code = checkToken(username, token);
+            if (code > 0) {
+                resJSON.put("code", code);
+                return resJSON;
+            }
+        }
+        //保留对老版id的保存
         if (uidCache.containsKey(uid) && uidCache.get(uid) > 0)
             uidCache.put(uid, uidCache.get(uid) - 1);
         else {
             resJSON.put("code", 303);
-            return resJSON;
-        }
-
-        String username = request.getParameter("user");
-        String token = request.getParameter("token");
-        int code = checkToken(username, token);
-        if (code > 0) {
-            resJSON.put("code", code);
             return resJSON;
         }
 

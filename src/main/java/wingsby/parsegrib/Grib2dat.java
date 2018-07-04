@@ -2,7 +2,7 @@ package wingsby.parsegrib;
 
 
 import com.alibaba.fastjson.JSONObject;
-import com.sun.scenario.effect.impl.sw.sse.SSEBlend_SRC_OUTPeer;
+//import com.sun.scenario.effect.impl.sw.sse.SSEBlend_SRC_OUTPeer;
 import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
 import wingsby.common.CacheDataFrame;
