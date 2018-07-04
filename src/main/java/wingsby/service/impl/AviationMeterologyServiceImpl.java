@@ -137,6 +137,10 @@ public class AviationMeterologyServiceImpl implements AviationMeterologyService 
                     List<Float> idata = calculateInterpolationData(heights, formatData, gh, lat, lon);
                     List<Float> fdata = new ArrayList<>();
                     for (Float v : idata) {
+                        if(Math.abs(v-ConstantVar.NullValF)<1e-5){
+                            fdata.add(v);
+                            continue;
+                        }
                         if (v > eles.getMax()) v = eles.getMax();
                         if (v < eles.getMin()) v = eles.getMin();
                         fdata.add(v);
@@ -390,6 +394,11 @@ public class AviationMeterologyServiceImpl implements AviationMeterologyService 
             List<Float> interWS = new ArrayList<>();
             List<Float> interWD = new ArrayList<>();
             for (int i = 0; i < interU.size(); i++) {
+                if(Math.abs(interU.get(i)-ConstantVar.NullValF)<1e-5||Math.abs(interV.get(i)-ConstantVar.NullValF)<1e-5){
+                    interWS.add(ConstantVar.NullValF);
+                    interWD.add(ConstantVar.NullValF);
+                    continue;
+                }
                 double[] wswd = MeteologicalTools.UV2WSWD(interU.get(i), interV.get(i));
                 if (wswd != null) {
                     interWS.add(Math.round(wswd[0] * 1000) / 1000f);
