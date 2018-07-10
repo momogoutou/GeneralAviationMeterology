@@ -544,7 +544,10 @@ public class ReadGrib {
             for (int j = 0; j < lon_num; j++) {
                 float u = ByteData.short2float(gfsMen_u.getData()[i][j], gfsMen_u.getOffset(), gfsMen_u.getScale());
                 float v = ByteData.short2float(gfsMen_v.getData()[i][j], gfsMen_v.getOffset(), gfsMen_v.getScale());
-//                data1[0][i][j] = (float) Math.pow(Math.pow(u, 2) + Math.pow(v, 2), 0.5);
+                if (Math.abs(u-ConstantVar.NullValF)<1000 || Math.abs(v-ConstantVar.NullValF)<1000){    //对于转化后异常值处理
+                    data1[0][i][j] = ConstantVar.NullValF;
+                    continue;
+                }
                 double[] wswd = MeteologicalTools.UV2WSWD(u, v);
                 if (wswd != null)
                     data1[0][i][j] = (float) (wswd[0]);
@@ -563,7 +566,10 @@ public class ReadGrib {
             for (int j = 0; j < lon_num; j++) {
                 float u = ByteData.short2float(gfsMen_u.getData()[i][j], gfsMen_u.getOffset(), gfsMen_u.getScale());
                 float v = ByteData.short2float(gfsMen_v.getData()[i][j], gfsMen_v.getOffset(), gfsMen_v.getScale());
-//                data1[0][i][j]= (float) (180+ Math.atan2(u,v)*180/Math.PI);
+                if (Math.abs(u-ConstantVar.NullValF)<1000 || Math.abs(v-ConstantVar.NullValF)<1000){    //对于转化后异常值处理
+                    data1[0][i][j] = ConstantVar.NullValF;
+                    continue;
+                }
                 double[] wswd = MeteologicalTools.UV2WSWD(u, v);
                 if (wswd != null)
                     data1[0][i][j] = (float) (wswd[1]);
@@ -582,6 +588,10 @@ public class ReadGrib {
             for (int j = 0; j < lon_num; j++) {
                 float u = ByteData.short2float(gfsMen_u.getData()[i][j], gfsMen_u.getOffset(), gfsMen_u.getScale());
                 float v = ByteData.short2float(gfsMen_v.getData()[i][j], gfsMen_v.getOffset(), gfsMen_v.getScale());
+                if (Math.abs(u-ConstantVar.NullValF)<1000 || Math.abs(v-ConstantVar.NullValF)<1000){    //对于转化后异常值处理
+                    data1[0][i][j] = ConstantVar.NullValF;
+                    continue;
+                }
                 double[] wswd = MeteologicalTools.UV2WSWD(u, v);
                 if (wswd != null)
                     data1[0][i][j] = (float) (wswd[0]);
@@ -600,6 +610,10 @@ public class ReadGrib {
             for (int j = 0; j < lon_num; j++) {
                 float u = ByteData.short2float(gfsMen_u.getData()[i][j], gfsMen_u.getOffset(), gfsMen_u.getScale());
                 float v = ByteData.short2float(gfsMen_v.getData()[i][j], gfsMen_v.getOffset(), gfsMen_v.getScale());
+                if (Math.abs(u-ConstantVar.NullValF)<1000 || Math.abs(v-ConstantVar.NullValF)<1000){    //对于转化后异常值处理
+                    data1[0][i][j] = ConstantVar.NullValF;
+                    continue;
+                }
                 double[] wswd = MeteologicalTools.UV2WSWD(u, v);
                 if (wswd != null)
                     data1[0][i][j] = (float) (wswd[1]);
@@ -616,6 +630,10 @@ public class ReadGrib {
         for (int i = 0; i < lat_num; i++) {
             for (int j = 0; j < lon_num; j++) {
                 float t = ByteData.short2float(gfsMen_t.getData()[i][j], gfsMen_t.getOffset(), gfsMen_t.getScale());
+                if ( Math.abs(t-ConstantVar.NullValF)<1000 ){    //对于转化后异常值处理
+                    data1[0][i][j] = ConstantVar.NullValF;
+                    continue;
+                }
                 data1[0][i][j] = (float) (t - 273.15);
             }
         }
@@ -643,6 +661,10 @@ public class ReadGrib {
         for (int i = 0; i < lat_num; i++) {
             for (int j = 0; j < lon_num; j++) {
                 float t = ByteData.short2float(gfsMen_t.getData()[i][j], gfsMen_t.getOffset(), gfsMen_t.getScale());
+                if ( Math.abs(t-ConstantVar.NullValF)<1000){    //对于转化后异常值处理
+                    data1[0][i][j] = ConstantVar.NullValF;
+                    continue;
+                }
                 data1[0][i][j] = (float) (t - 273.15);
             }
         }
@@ -658,6 +680,10 @@ public class ReadGrib {
         for (int i = 0; i < lat_num; i++) {
             for (int j = 0; j < lon_num; j++) {
                 float p = ByteData.short2float(gfsMen_t.getData()[i][j], gfsMen_t.getOffset(), gfsMen_t.getScale());
+                if ( Math.abs(p-ConstantVar.NullValF)<1000){    //对于转化后异常值处理
+                    data1[0][i][j] = ConstantVar.NullValF;
+                    continue;
+                }
                 data1[0][i][j] = p / 100;
             }
         }
@@ -672,6 +698,10 @@ public class ReadGrib {
         for (int i = 0; i < lat_num; i++) {
             for (int j = 0; j < lon_num; j++) {
                 float p = ByteData.short2float(gfsMen_t.getData()[i][j], gfsMen_t.getOffset(), gfsMen_t.getScale());
+                if ( Math.abs(p-ConstantVar.NullValF)<1000){    //对于转化后异常值处理
+                    data1[0][i][j] = ConstantVar.NullValF;
+                    continue;
+                }
                 data1[0][i][j] = p / 100;
             }
         }

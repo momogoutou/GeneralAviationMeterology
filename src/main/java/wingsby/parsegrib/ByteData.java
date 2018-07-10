@@ -97,10 +97,13 @@ public class ByteData {
         return element_data;
     }
     ////////////////////////数据存储,对于float2short的nan数据，变成了0，后面交给short2float做
+    //short没有nan，所以用-9999代替
     public static short float2short(float data0,float offset,float scale){
+        if ( Float.isNaN(data0) || data0 ==ConstantVar.NullValF ) return (short) ConstantVar.NullValF;
         return (short)((data0-offset)*scale);
     }
     public static float short2float(short data0,float offset,float scale){
+        if (data0 == ConstantVar.NullValF)return ConstantVar.NullValF;
         float res=data0/scale+offset;
         if(Math.abs(res- ConstantVar.NullValF)>1e-6){
             return res;
